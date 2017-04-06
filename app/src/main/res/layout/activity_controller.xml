@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.scientificrat.robcon2017blecontrol.ControllerActivity">
+    tools:context="com.scientificrat.robocon2017blecontrol.ControllerActivity">
 
     <android.support.v7.widget.Toolbar
         android:id="@+id/toolbar"
@@ -49,7 +49,7 @@
             android:layout_weight="11"
             android:orientation="horizontal">
 
-            <com.scientificrat.robcon2017blecontrol.widget.CustomizableCommandButton
+            <com.scientificrat.robocon2017blecontrol.widget.CustomizableCommandButton
                 android:id="@+id/c_button"
                 style="?borderlessButtonStyle"
                 android:layout_width="match_parent"
@@ -59,7 +59,7 @@
                 android:background="@drawable/blue_command_button"
                 android:text="位置0" />
 
-            <com.scientificrat.robcon2017blecontrol.widget.CustomizableCommandButton
+            <com.scientificrat.robocon2017blecontrol.widget.CustomizableCommandButton
 
                 style="?borderlessButtonStyle"
                 android:layout_width="match_parent"
@@ -69,7 +69,7 @@
                 android:background="@drawable/blue_command_button"
                 android:text="位置1" />
 
-            <com.scientificrat.robcon2017blecontrol.widget.CustomizableCommandButton
+            <com.scientificrat.robocon2017blecontrol.widget.CustomizableCommandButton
 
                 style="?borderlessButtonStyle"
                 android:layout_width="match_parent"
@@ -79,7 +79,7 @@
                 android:background="@drawable/blue_command_button"
                 android:text="位置2" />
 
-            <com.scientificrat.robcon2017blecontrol.widget.CustomizableCommandButton
+            <com.scientificrat.robocon2017blecontrol.widget.CustomizableCommandButton
 
                 style="?borderlessButtonStyle"
                 android:layout_width="match_parent"
@@ -89,7 +89,7 @@
                 android:background="@drawable/blue_command_button"
                 android:text="位置3" />
 
-            <com.scientificrat.robcon2017blecontrol.widget.CustomizableCommandButton
+            <com.scientificrat.robocon2017blecontrol.widget.CustomizableCommandButton
 
                 style="?borderlessButtonStyle"
                 android:layout_width="match_parent"
@@ -99,7 +99,7 @@
                 android:background="@drawable/blue_command_button"
                 android:text="位置4" />
 
-            <com.scientificrat.robcon2017blecontrol.widget.CustomizableCommandButton
+            <com.scientificrat.robocon2017blecontrol.widget.CustomizableCommandButton
 
                 style="?borderlessButtonStyle"
                 android:layout_width="match_parent"
@@ -109,7 +109,7 @@
                 android:background="@drawable/blue_command_button"
                 android:text="位置5" />
 
-            <com.scientificrat.robcon2017blecontrol.widget.CustomizableCommandButton
+            <com.scientificrat.robocon2017blecontrol.widget.CustomizableCommandButton
 
                 style="?borderlessButtonStyle"
                 android:layout_width="match_parent"

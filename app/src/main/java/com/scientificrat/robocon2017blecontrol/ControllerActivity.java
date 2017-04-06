@@ -1,14 +1,9 @@
-package com.scientificrat.robcon2017blecontrol;
+package com.scientificrat.robocon2017blecontrol;
 
-import android.app.Service;
-import android.os.Vibrator;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
-import android.view.MotionEvent;
-import android.view.View;
-import android.widget.Button;
 
 public class ControllerActivity extends AppCompatActivity {
 

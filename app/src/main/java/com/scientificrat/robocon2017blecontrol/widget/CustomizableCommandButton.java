@@ -1,4 +1,4 @@
-package com.scientificrat.robcon2017blecontrol.widget;
+package com.scientificrat.robocon2017blecontrol.widget;
 
 import android.app.Service;
 import android.content.Context;

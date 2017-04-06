@@ -1,4 +1,4 @@
-package com.scientificrat.robcon2017blecontrol;
+package com.scientificrat.robocon2017blecontrol;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
