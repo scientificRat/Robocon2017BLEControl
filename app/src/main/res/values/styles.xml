@@ -7,11 +7,11 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
-        <!--<item name="android:colorBackground">@color/colorBack</item>-->
+        <item name="android:colorBackground">@color/colorBack</item>
         <item name="android:textColorPrimary">@color/colorFont</item>
         <item name="android:colorForeground">@android:color/background_light</item>
-        <item name="android:navigationBarColor">@color/colorBack</item>
-        <item name="android:textColorSecondary">@color/colorFont</item>
+        <!--<item name="android:navigationBarColor">@color/colorBack</item>-->
+        <item name="android:textColorSecondary">@color/colorFontLight</item>
 
     </style>
 
