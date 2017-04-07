@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:layout_margin="16dp">
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <info.hoang8f.android.segmented.SegmentedGroup
+            xmlns:segmentedgroup="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/segmented2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:orientation="horizontal"
+            segmentedgroup:sc_border_width="2dp"
+            segmentedgroup:sc_tint_color="@color/colorYellowDark"
+            segmentedgroup:sc_corner_radius="3dp"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true">
+
+            <RadioButton
+                android:id="@+id/button_ascii"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="ASCII"
+                style="@style/RadioButton"
+                android:checked="true"
+                />
+
+            <RadioButton
+                android:id="@+id/button_hex"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="HEX"
+                style="@style/RadioButton" />
+        </info.hoang8f.android.segmented.SegmentedGroup>
+
+        <Button
+            android:id="@+id/button_delete"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@color/colorYellowDark"
+            android:minHeight="40dp"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:text="删除按键" />
+    </RelativeLayout>
+
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:text="发送命令:"
+            android:textColor="@color/colorFontLight"
+            android:gravity="center"
+            android:layout_margin="8dp"/>
+
+        <EditText
+            android:id="@+id/editText_send_command"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/colorFontLight"
+            android:inputType="textVisiblePassword"
+            android:digits="`~!@#$%^*()_+{}|:&amp;&lt;&gt;&quot;&apos;[];,./\?ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890 "
+            />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:text="按钮文字:"
+            android:textColor="@color/colorFontLight"
+            android:gravity="center"
+            android:layout_margin="8dp"/>
+        <EditText
+            android:id="@+id/editText_button_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/colorFontLight"/>
+
+    </LinearLayout>
+
+
+
+
+
+
+</LinearLayout>

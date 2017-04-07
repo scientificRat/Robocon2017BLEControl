@@ -1,16 +1,25 @@
 package com.scientificrat.robocon2017blecontrol.widget;
 
-import android.app.Service;
 import android.content.Context;
-import android.os.Vibrator;
+import android.content.DialogInterface;
 import android.support.annotation.NonNull;
 
 import android.util.AttributeSet;
 import android.support.v7.widget.*;
 import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.RadioButton;
+import android.widget.Toast;
 
+import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.scientificrat.robocon2017blecontrol.R;
 import com.scientificrat.robocon2017blecontrol.util.AppVibrator;
+import com.scientificrat.robocon2017blecontrol.util.HexHelper;
+
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 /**
  * Created by huangzhengyue on 2017/4/5.
@@ -20,10 +29,16 @@ public class CustomizableCommandButton extends AppCompatButton {
 
     private final static int NORMAL_STATE = 0;
     private final static int EDITING_STATE = 1;
+    private final static int ASCII_FORMAT = 0;
+    private final static int HEX_FORMAT = 1;
     private int state = NORMAL_STATE;
     private String buttonText = "";
-    private byte[] sendBuffer = new byte[100];
-    private int sendBufferLength = 0;
+    private byte[] sendBuffer;
+
+    private int dataFormat = ASCII_FORMAT;
+
+    private MaterialDialog mInputDialog = null;
+
 
     //constructors
     public CustomizableCommandButton(Context context) {
@@ -44,11 +59,13 @@ public class CustomizableCommandButton extends AppCompatButton {
     /**
      * Do initialization, setting listeners
      */
-    private void init(){
+    private void init() {
+        // 初始化对话框
+        initDialog();
+        // 设置长按事件监听
         setOnLongClickListener(new OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-
                 state = EDITING_STATE;
                 showInputDialog();
                 //vibrate
@@ -56,28 +73,114 @@ public class CustomizableCommandButton extends AppCompatButton {
                 return false;
             }
         });
-
+        // 设置短按事件监听
         setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(state==NORMAL_STATE){
+                if (state == NORMAL_STATE) {
                     AppVibrator.vibrateShort(getContext());
                 }
             }
         });
     }
 
-    private void showInputDialog() {
-        new MaterialDialog.Builder(getContext()).title("shit").content("hello").positiveText("ok").input("s", "s", false, new MaterialDialog.InputCallback() {
+    private void initDialog() {
+
+        mInputDialog = new MaterialDialog.Builder(getContext())
+                .backgroundColorRes(R.color.colorBack)
+                .positiveText("确定")
+                .customView(R.layout.dialog_edit_command_layout, false)
+                .cancelListener(new DialogInterface.OnCancelListener() {
+                    @Override
+                    public void onCancel(DialogInterface dialog) {
+                        state = NORMAL_STATE;
+                    }
+                })
+                .onPositive(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                        state = NORMAL_STATE;
+                        // 设置按钮显示文本
+                        EditText editTextButtonName = (EditText) dialog.findViewById(R.id.editText_button_name);
+                        CustomizableCommandButton.this.setText(editTextButtonName.getText());
+                        // 设置发送内容
+                        EditText editTextOfButtonSendCommand = (EditText) dialog.findViewById(R.id.editText_send_command);
+                        RadioButton radioButtonOfASC = (RadioButton) dialog.findViewById(R.id.button_ascii);
+                        if (radioButtonOfASC.isChecked()) {
+                            sendBuffer = editTextOfButtonSendCommand.getText().toString().getBytes();
+                        } else {
+                            try {
+                                String input = editTextOfButtonSendCommand.getText().toString();
+                                // 去除空格
+                                input = input.replace(" ", "");
+                                sendBuffer = HexHelper.hexString2byte(input);
+                            } catch (NumberFormatException e) {
+                                e.printStackTrace();
+                                Toast.makeText(getContext(), "输入格式错误", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    }
+                }).build();
+
+
+        // 删除按键
+        // FIXME: 2017/4/7 为了简单，并没有真正删除按键，而是隐藏，这里存在潜在的泄漏风险
+        final Button button = (Button) mInputDialog.findViewById(R.id.button_delete);
+        button.setOnClickListener(new OnClickListener() {
             @Override
-            public void onInput(@NonNull MaterialDialog dialog, CharSequence input) {
-                state = NORMAL_STATE;
+            public void onClick(View v) {
+                CustomizableCommandButton.this.setVisibility(GONE);
+                mInputDialog.hide();
             }
-        }).cancelable(false).show();
+        });
+
+
+        RadioButton radioButtonOfASC = (RadioButton) mInputDialog.findViewById(R.id.button_ascii);
+        RadioButton radioButtonOfHex = (RadioButton) mInputDialog.findViewById(R.id.button_hex);
+        final EditText editTextOfButtonSendCommand = (EditText) mInputDialog.findViewById(R.id.editText_send_command);
+
+        radioButtonOfASC.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dataFormat = ASCII_FORMAT;
+                if (sendBuffer != null && sendBuffer.length != 0) {
+                    editTextOfButtonSendCommand.setText(new String(sendBuffer));
+                }
+            }
+        });
+
+        radioButtonOfHex.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dataFormat = HEX_FORMAT;
+                if (sendBuffer != null && sendBuffer.length != 0) {
+                    editTextOfButtonSendCommand.setText(HexHelper.byte2hexString(sendBuffer));
+                }
+            }
+        });
+
+
+    }
+
+    private void showInputDialog() {
+        EditText editTextButtonName = (EditText) mInputDialog.findViewById(R.id.editText_button_name);
+        editTextButtonName.setText(this.getText());
+        EditText editTextOfButtonSendCommand = (EditText) mInputDialog.findViewById(R.id.editText_send_command);
+        // TODO: 应该添加判断是否为可显示的ascii，然后以不同形式显示
+        if (sendBuffer != null) {
+            if(dataFormat == ASCII_FORMAT){
+                editTextOfButtonSendCommand.setText(new String(sendBuffer));
+            }else {
+                editTextOfButtonSendCommand.setText(HexHelper.byte2hexString(sendBuffer));
+            }
+
+        }
+        mInputDialog.show();
     }
 
     /**
      * Get state
+     *
      * @return state, 0 for NORMAL_STATE, 1 for EDITING_STATE
      */
     public int getState() {
