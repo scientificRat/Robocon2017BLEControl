@@ -21,5 +21,6 @@
 
     <color name="colorYellow">#FFDC41</color>
     <color name="colorYellowDark">#CAB556</color>
+    <color name="colorYellowVeryDark">#9E8E43</color>
 
 </resources>

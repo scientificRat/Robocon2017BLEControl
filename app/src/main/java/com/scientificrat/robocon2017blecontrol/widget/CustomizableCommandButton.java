@@ -10,6 +10,7 @@ import android.support.v7.widget.*;
 import android.view.View;
 
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.scientificrat.robocon2017blecontrol.util.AppVibrator;
 
 /**
  * Created by huangzhengyue on 2017/4/5.
@@ -44,15 +45,14 @@ public class CustomizableCommandButton extends AppCompatButton {
      * Do initialization, setting listeners
      */
     private void init(){
-
         setOnLongClickListener(new OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                // vibrate
-                Vibrator vibrator = (Vibrator) getContext().getSystemService(Service.VIBRATOR_SERVICE);
+
                 state = EDITING_STATE;
                 showInputDialog();
-                vibrator.vibrate(100);
+                //vibrate
+                AppVibrator.vibrateLong(getContext());
                 return false;
             }
         });
@@ -61,9 +61,7 @@ public class CustomizableCommandButton extends AppCompatButton {
             @Override
             public void onClick(View v) {
                 if(state==NORMAL_STATE){
-                    // vibrate
-                    Vibrator vibrator = (Vibrator) getContext().getSystemService(Service.VIBRATOR_SERVICE);
-                    vibrator.vibrate(40);
+                    AppVibrator.vibrateShort(getContext());
                 }
             }
         });
@@ -85,4 +83,6 @@ public class CustomizableCommandButton extends AppCompatButton {
     public int getState() {
         return state;
     }
+
+
 }
