@@ -5,18 +5,32 @@ package com.scientificrat.robocon2017blecontrol.util;
  */
 
 public class HexHelper {
+
+    /**
+     * 将byte数组转换为16进制形式的字符串
+     *
+     * @param buffer byte 数组
+     * @return 16进制格式的字符串
+     */
     public static String byte2hexString(byte[] buffer) {
-        String h = "";
+        StringBuilder sb = new StringBuilder();
         for (byte aBuffer : buffer) {
             String temp = Integer.toHexString(aBuffer & 0xFF).toUpperCase();
             if (temp.length() == 1) {
                 temp = "0" + temp;
             }
-            h = h + " " + temp;
+            sb.append(" ");
+            sb.append(temp);
         }
-        return h;
+        return sb.toString().trim();
     }
 
+    /**
+     * 将16进制字符串转化为byte数组
+     *
+     * @param input 输入字串
+     * @return byte数组
+     */
     public static byte[] hexString2byte(String input) {
         int length = input.length();
         int byteSize;

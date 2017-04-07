@@ -60,6 +60,10 @@ public class CustomizableCommandButton extends AppCompatButton {
      * Do initialization, setting listeners
      */
     private void init() {
+        // 为了在layout编辑器中正确显示
+        if(isInEditMode()){
+            return;
+        }
         // 初始化对话框
         initDialog();
         // 设置长按事件监听
