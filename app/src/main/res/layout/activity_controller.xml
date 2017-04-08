@@ -50,6 +50,7 @@
                 android:layout_height="match_parent">
 
                 <ImageButton
+                    android:id="@+id/bluetooth_setsting"
                     android:layout_width="30dp"
                     android:layout_height="30dp"
                     android:layout_alignParentEnd="true"
@@ -410,6 +411,7 @@
         android:orientation="vertical"
         android:background="@color/colorWhite">
         <TextView
+            android:id="@+id/data_receive"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
@@ -420,6 +422,34 @@
             android:text="清空"/>
 
     </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/right_drawer"
+        android:layout_width="300dp"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:background="@color/colorSecond"
+        android:layout_gravity="right"
+        >
+
+        <ListView
+            android:id="@+id/device_list"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:background="@color/colorSecond" />
+        <Button
+            android:id="@+id/connect"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_margin="10dp"
+            android:layout_gravity="center"
+            android:background="@drawable/blue_dashed_circle_button"
+            android:text="连接"
+            />
+
+    </LinearLayout>
+
 
 
 </android.support.v4.widget.DrawerLayout>

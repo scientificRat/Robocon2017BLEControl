@@ -2,6 +2,7 @@ package com.scientificrat.robocon2017blecontrol.adapter;
 
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.os.ParcelUuid;
 import android.util.Log;
@@ -80,8 +81,11 @@ public class DeviceListAdapter extends BaseAdapter {
 
         addrText.setText(deviceList.get(position).getAddress());
         nameText.setText(deviceList.get(position).getName());
+        // selectedPosition 需要对应的adapterView onItemClickedListener 中指定
         if (this.selectedPosition == position) {
+//            convertView.setBackgroundTintList(ColorStateList.valueOf(Color.rgb(230, 238, 156)));
             convertView.setBackgroundColor(Color.rgb(230, 238, 156));
+
         } else {
             convertView.setBackgroundColor(Color.TRANSPARENT);
         }
@@ -106,7 +110,12 @@ public class DeviceListAdapter extends BaseAdapter {
     }
 
     public BluetoothDevice getSelectedDevice() {
-        return deviceList.get(selectedPosition);
+        try {
+            return deviceList.get(selectedPosition);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     public void setSelectedPosition(int selectedPosition) {
@@ -121,7 +130,7 @@ public class DeviceListAdapter extends BaseAdapter {
         clearSelect();
     }
 
-    public void clearSelect(){
+    public void clearSelect() {
         this.selectedPosition = -1;// 什么都没有选中
         this.notifyDataSetInvalidated();// 更新视图
     }

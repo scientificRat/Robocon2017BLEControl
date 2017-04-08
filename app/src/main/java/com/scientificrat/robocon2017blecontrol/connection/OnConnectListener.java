@@ -5,5 +5,6 @@ package com.scientificrat.robocon2017blecontrol.connection;
  */
 
 public interface OnConnectListener {
-    void onConnect();
+    void onConnectSuccess();
+    void onConnectFail();
 }

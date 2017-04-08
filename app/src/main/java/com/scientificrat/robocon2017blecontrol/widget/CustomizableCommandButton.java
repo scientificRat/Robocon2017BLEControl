@@ -15,9 +15,12 @@ import android.widget.Toast;
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.scientificrat.robocon2017blecontrol.R;
+import com.scientificrat.robocon2017blecontrol.connection.BluetoothConnection;
 import com.scientificrat.robocon2017blecontrol.util.AppVibrator;
 import com.scientificrat.robocon2017blecontrol.util.HexHelper;
 
+import java.io.IOException;
+import java.io.Serializable;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
@@ -25,7 +28,7 @@ import java.nio.ByteOrder;
  * Created by huangzhengyue on 2017/4/5.
  */
 
-public class CustomizableCommandButton extends AppCompatButton {
+public class CustomizableCommandButton extends AppCompatButton implements Serializable {
 
     private final static int NORMAL_STATE = 0;
     private final static int EDITING_STATE = 1;
@@ -37,7 +40,7 @@ public class CustomizableCommandButton extends AppCompatButton {
 
     private int dataFormat = ASCII_FORMAT;
 
-    private MaterialDialog mInputDialog = null;
+    private transient MaterialDialog mInputDialog = null;
 
 
     //constructors
@@ -61,7 +64,7 @@ public class CustomizableCommandButton extends AppCompatButton {
      */
     private void init() {
         // 为了在layout编辑器中正确显示
-        if(isInEditMode()){
+        if (isInEditMode()) {
             return;
         }
         // 初始化对话框
@@ -83,6 +86,17 @@ public class CustomizableCommandButton extends AppCompatButton {
             public void onClick(View v) {
                 if (state == NORMAL_STATE) {
                     AppVibrator.vibrateShort(getContext());
+                    BluetoothConnection bluetoothConnection = BluetoothConnection.getInstance();
+                    if (bluetoothConnection == null) {
+                        Toast.makeText(getContext(), "蓝牙未连接", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    try {
+                        bluetoothConnection.sendRawData(sendBuffer);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        Toast.makeText(getContext(), "发送失败", Toast.LENGTH_SHORT).show();
+                    }
                 }
             }
         });
@@ -106,7 +120,8 @@ public class CustomizableCommandButton extends AppCompatButton {
                         state = NORMAL_STATE;
                         // 设置按钮显示文本
                         EditText editTextButtonName = (EditText) dialog.findViewById(R.id.editText_button_name);
-                        CustomizableCommandButton.this.setText(editTextButtonName.getText());
+                        buttonText = editTextButtonName.getText().toString();
+                        CustomizableCommandButton.this.setText(buttonText);
                         // 设置发送内容
                         EditText editTextOfButtonSendCommand = (EditText) dialog.findViewById(R.id.editText_send_command);
                         RadioButton radioButtonOfASC = (RadioButton) dialog.findViewById(R.id.button_ascii);
@@ -172,9 +187,9 @@ public class CustomizableCommandButton extends AppCompatButton {
         EditText editTextOfButtonSendCommand = (EditText) mInputDialog.findViewById(R.id.editText_send_command);
         // TODO: 应该添加判断是否为可显示的ascii，然后以不同形式显示
         if (sendBuffer != null) {
-            if(dataFormat == ASCII_FORMAT){
+            if (dataFormat == ASCII_FORMAT) {
                 editTextOfButtonSendCommand.setText(new String(sendBuffer));
-            }else {
+            } else {
                 editTextOfButtonSendCommand.setText(HexHelper.byte2hexString(sendBuffer));
             }
 
@@ -190,6 +205,4 @@ public class CustomizableCommandButton extends AppCompatButton {
     public int getState() {
         return state;
     }
-
-
 }
