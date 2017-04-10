@@ -120,6 +120,8 @@ public class BluetoothConnection extends Thread {
             this.bluetoothSocket.close();
         } catch (IOException e) {
             e.printStackTrace();
+        } finally {
+            instance = null;
         }
     }
 

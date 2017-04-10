@@ -21,8 +21,7 @@ import com.scientificrat.robocon2017blecontrol.util.HexHelper;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
+import java.lang.reflect.Array;
 
 /**
  * Created by huangzhengyue on 2017/4/5.
@@ -30,39 +29,95 @@ import java.nio.ByteOrder;
 
 public class CustomizableCommandButton extends AppCompatButton implements Serializable {
 
+    // ------------------Const variables-------------------
     private final static int NORMAL_STATE = 0;
     private final static int EDITING_STATE = 1;
     private final static int ASCII_FORMAT = 0;
     private final static int HEX_FORMAT = 1;
+    // 创建按键时的默认文字
+    private final static String DEFAULT_BUTTON_TEXT = "";
+    //-----------------------------------------------------
+
     private int state = NORMAL_STATE;
-    private String buttonText = "";
-    private byte[] sendBuffer;
-
-    private int dataFormat = ASCII_FORMAT;
-
+    // 自定义信息
+    private CustomizableInfo customizableInfo = null;
+    // 弹出输入框
     private transient MaterialDialog mInputDialog = null;
 
+    // 保存到文件的部分
+    public static class CustomizableInfo implements Serializable {
+        private String buttonText = DEFAULT_BUTTON_TEXT;
+        private byte[] sendBuffer = null;
+        private int dataFormat = ASCII_FORMAT;
 
-    //constructors
+        public String getButtonText() {
+            return buttonText;
+        }
+
+        public CustomizableInfo setButtonText(String buttonText) {
+            this.buttonText = buttonText;
+            return this;
+        }
+
+        public byte[] getSendBuffer() {
+            return sendBuffer;
+        }
+
+        public CustomizableInfo setSendBuffer(byte[] sendBuffer) {
+            this.sendBuffer = sendBuffer;
+            return this;
+        }
+
+        public int getDataFormat() {
+            return dataFormat;
+        }
+
+        public CustomizableInfo setDataFormat(int dataFormat) {
+            this.dataFormat = dataFormat;
+            return this;
+        }
+    }
+
+
+    //------------------Constructors------------------------
     public CustomizableCommandButton(Context context) {
         super(context);
-        init();
+        // 新建button自定义信息
+        customizableInfo = new CustomizableInfo();
+        this.setText(customizableInfo.buttonText);
+        initDefaultListeners();
     }
+
+    public CustomizableCommandButton(Context context, CustomizableInfo customizableInfo) {
+        super(context);
+        // 构建button自定义信息
+        this.customizableInfo = customizableInfo;
+        this.setText(customizableInfo.buttonText);
+        initDefaultListeners();
+    }
+
 
     public CustomizableCommandButton(Context context, AttributeSet attrs) {
         super(context, attrs);
-        init();
+        // 新建button自定义信息
+        customizableInfo = new CustomizableInfo();
+        this.setText(customizableInfo.buttonText);
+        initDefaultListeners();
     }
 
     public CustomizableCommandButton(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        init();
+        // 新建button自定义信息
+        customizableInfo = new CustomizableInfo();
+        this.setText(customizableInfo.buttonText);
+        initDefaultListeners();
     }
+    //------------------------------------------------------
 
     /**
      * Do initialization, setting listeners
      */
-    private void init() {
+    private void initDefaultListeners() {
         // 为了在layout编辑器中正确显示
         if (isInEditMode()) {
             return;
@@ -92,7 +147,7 @@ public class CustomizableCommandButton extends AppCompatButton implements Serial
                         return;
                     }
                     try {
-                        bluetoothConnection.sendRawData(sendBuffer);
+                        bluetoothConnection.sendRawData(customizableInfo.sendBuffer);
                     } catch (IOException e) {
                         e.printStackTrace();
                         Toast.makeText(getContext(), "发送失败", Toast.LENGTH_SHORT).show();
@@ -120,19 +175,19 @@ public class CustomizableCommandButton extends AppCompatButton implements Serial
                         state = NORMAL_STATE;
                         // 设置按钮显示文本
                         EditText editTextButtonName = (EditText) dialog.findViewById(R.id.editText_button_name);
-                        buttonText = editTextButtonName.getText().toString();
-                        CustomizableCommandButton.this.setText(buttonText);
+                        customizableInfo.buttonText = editTextButtonName.getText().toString();
+                        CustomizableCommandButton.this.setText(customizableInfo.buttonText);
                         // 设置发送内容
                         EditText editTextOfButtonSendCommand = (EditText) dialog.findViewById(R.id.editText_send_command);
                         RadioButton radioButtonOfASC = (RadioButton) dialog.findViewById(R.id.button_ascii);
                         if (radioButtonOfASC.isChecked()) {
-                            sendBuffer = editTextOfButtonSendCommand.getText().toString().getBytes();
+                            customizableInfo.sendBuffer = editTextOfButtonSendCommand.getText().toString().getBytes();
                         } else {
                             try {
                                 String input = editTextOfButtonSendCommand.getText().toString();
                                 // 去除空格
                                 input = input.replace(" ", "");
-                                sendBuffer = HexHelper.hexString2byte(input);
+                                customizableInfo.sendBuffer = HexHelper.hexString2byte(input);
                             } catch (NumberFormatException e) {
                                 e.printStackTrace();
                                 Toast.makeText(getContext(), "输入格式错误", Toast.LENGTH_SHORT).show();
@@ -161,9 +216,9 @@ public class CustomizableCommandButton extends AppCompatButton implements Serial
         radioButtonOfASC.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                dataFormat = ASCII_FORMAT;
-                if (sendBuffer != null && sendBuffer.length != 0) {
-                    editTextOfButtonSendCommand.setText(new String(sendBuffer));
+                customizableInfo.dataFormat = ASCII_FORMAT;
+                if (customizableInfo.sendBuffer != null && customizableInfo.sendBuffer.length != 0) {
+                    editTextOfButtonSendCommand.setText(new String(customizableInfo.sendBuffer));
                 }
             }
         });
@@ -171,9 +226,9 @@ public class CustomizableCommandButton extends AppCompatButton implements Serial
         radioButtonOfHex.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                dataFormat = HEX_FORMAT;
-                if (sendBuffer != null && sendBuffer.length != 0) {
-                    editTextOfButtonSendCommand.setText(HexHelper.byte2hexString(sendBuffer));
+                customizableInfo.dataFormat = HEX_FORMAT;
+                if (customizableInfo.sendBuffer != null && customizableInfo.sendBuffer.length != 0) {
+                    editTextOfButtonSendCommand.setText(HexHelper.byte2hexString(customizableInfo.sendBuffer));
                 }
             }
         });
@@ -185,12 +240,12 @@ public class CustomizableCommandButton extends AppCompatButton implements Serial
         EditText editTextButtonName = (EditText) mInputDialog.findViewById(R.id.editText_button_name);
         editTextButtonName.setText(this.getText());
         EditText editTextOfButtonSendCommand = (EditText) mInputDialog.findViewById(R.id.editText_send_command);
-        // TODO: 应该添加判断是否为可显示的ascii，然后以不同形式显示
-        if (sendBuffer != null) {
-            if (dataFormat == ASCII_FORMAT) {
-                editTextOfButtonSendCommand.setText(new String(sendBuffer));
+        // TODO: 应该添加判断是否为可显示的 ASCII ，然后以不同形式显示
+        if (customizableInfo.sendBuffer != null) {
+            if (customizableInfo.dataFormat == ASCII_FORMAT) {
+                editTextOfButtonSendCommand.setText(new String(customizableInfo.sendBuffer));
             } else {
-                editTextOfButtonSendCommand.setText(HexHelper.byte2hexString(sendBuffer));
+                editTextOfButtonSendCommand.setText(HexHelper.byte2hexString(customizableInfo.sendBuffer));
             }
 
         }
@@ -204,5 +259,9 @@ public class CustomizableCommandButton extends AppCompatButton implements Serial
      */
     public int getState() {
         return state;
+    }
+
+    public CustomizableInfo getCustomizableInfo() {
+        return customizableInfo;
     }
 }

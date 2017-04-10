@@ -11,6 +11,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.AdapterView;
@@ -31,9 +32,17 @@ import com.scientificrat.robocon2017blecontrol.util.HexHelper;
 import com.scientificrat.robocon2017blecontrol.util.MesurementUtility;
 import com.scientificrat.robocon2017blecontrol.widget.CustomizableCommandButton;
 
-import org.w3c.dom.Text;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.ArrayList;
 
 public class ControllerActivity extends AppCompatActivity {
+
+    private static String CUSTOMIZE_BUTTON_INFO_FILE_NAME = "CustomizeButtons.info";
 
     // 成功开启蓝牙后，onActivityResult 收到的code
     private final int BLUETOOTH_REQUEST_ENABLE_BT = 2;
@@ -77,7 +86,7 @@ public class ControllerActivity extends AppCompatActivity {
     /**
      * 初始化 views (UI Widgets)
      */
-    private void initViews() {
+    private void getViewsReferences() {
         deviceListView = (ListView) findViewById(R.id.device_list);
         customizeButtonContainer = (LinearLayout) findViewById(R.id.customize_command_button_container);
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -88,18 +97,26 @@ public class ControllerActivity extends AppCompatActivity {
         connectionStateTextView = (TextView) findViewById(R.id.text_view_connection_state);
     }
 
-
+    /**
+     * OnCreate 方法
+     *
+     * @param savedInstanceState 传入的状态
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        // 加载xml视图
+        // 从layout.xml 构建界面
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_controller);
 
-        // 初始化蓝牙设备
-        initBluetooth();
+        // 获取所有view的引用
+        this.getViewsReferences();
 
-        // 初始化view
-        initViews();
+        // 初始化蓝牙设备
+        this.initBluetooth();
+
+        // 构建所有自定义发送按钮
+        this.constructCustomizedButton();
+
 
         // 设备列表绑定适配器
         deviceListAdapter = new DeviceListAdapter(this);
@@ -183,14 +200,26 @@ public class ControllerActivity extends AppCompatActivity {
 
 
     /**
-     * 添加命令按钮动作
+     * 添加自定义发送按钮动作
      *
      * @param view 当前点击的视图
      */
-    public void addCommandButton(View view) {
-        //vibrate
+    public void addNewCustomizeCommandButton(View view) {
+        // vibrate
         AppVibrator.vibrateShort(this);
-        CustomizableCommandButton button = new CustomizableCommandButton(this);
+        addCustomizeCommandButton(null);
+    }
+
+    /**
+     * 添加自定义发送按钮动作
+     */
+    private void addCustomizeCommandButton(CustomizableCommandButton.CustomizableInfo info) {
+        CustomizableCommandButton button;
+        if (info == null) {
+            button = new CustomizableCommandButton(this);
+        } else {
+            button = new CustomizableCommandButton(this, info);
+        }
         button.setBackground(getDrawable(R.drawable.blue_command_button));
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
@@ -198,6 +227,42 @@ public class ControllerActivity extends AppCompatActivity {
         params.weight = 1.0f;
         params.setMarginEnd(MesurementUtility.convertDPtoPX(getResources(), 8));
         customizeButtonContainer.addView(button, params);
+    }
+
+    /**
+     * 构建所有自定义发送按钮
+     */
+    private void constructCustomizedButton() {
+        File inputFile = new File(getCacheDir(), CUSTOMIZE_BUTTON_INFO_FILE_NAME);
+        if (!inputFile.exists()) {
+            constructCustomizedButtonInDefault();
+            return;
+        }
+        ArrayList<CustomizableCommandButton.CustomizableInfo> infos = null;
+        // 根据文件内容创建
+        try (ObjectInputStream objectInputStream = new ObjectInputStream(new FileInputStream(inputFile))) {
+            infos = (ArrayList<CustomizableCommandButton.CustomizableInfo>) objectInputStream.readObject();
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        if (infos == null || infos.isEmpty()) {
+            constructCustomizedButtonInDefault();
+        } else {
+            for (CustomizableCommandButton.CustomizableInfo info : infos) {
+                addCustomizeCommandButton(info);
+            }
+        }
+    }
+
+    private void constructCustomizedButtonInDefault() {
+        // 默认构建7个按钮
+        CustomizableCommandButton.CustomizableInfo info;
+        Log.d("func in", "constructCustomizedButtonInDefault: in!");
+        for (int i = 0; i < 7; i++) {
+            info = new CustomizableCommandButton.CustomizableInfo();
+            info.setButtonText("位置" + i);
+            addCustomizeCommandButton(info);
+        }
     }
 
 
@@ -269,7 +334,7 @@ public class ControllerActivity extends AppCompatActivity {
                                 connectButton.setEnabled(true);
                                 drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, Gravity.RIGHT);
                                 BluetoothConnection bluetoothConnection = BluetoothConnection.getInstance();
-                                if(bluetoothConnection!=null){
+                                if (bluetoothConnection != null) {
                                     bluetoothConnection.start();
                                 }
                             }
@@ -353,7 +418,6 @@ public class ControllerActivity extends AppCompatActivity {
         ActivityCompat.requestPermissions(this,
                 new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
                 MY_PERMISSIONS_REQUEST_ACCESS_COARSE_LOCATION);
-
         return true;
     }
 
@@ -389,5 +453,30 @@ public class ControllerActivity extends AppCompatActivity {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        // Save customize button state to file
+        // Gather information
+        ArrayList<CustomizableCommandButton.CustomizableInfo> customizableInfoArrayList = new ArrayList<>();
+        int buttonCount = customizeButtonContainer.getChildCount();
+        for (int i = 0; i < buttonCount; i++) {
+            CustomizableCommandButton commandButton = (CustomizableCommandButton) customizeButtonContainer.getChildAt(i);
+            if (commandButton.getVisibility() == View.GONE) continue;
+            customizableInfoArrayList.add(commandButton.getCustomizableInfo());
+        }
+        // save
+        File cacheDir = getCacheDir();
+        if (!cacheDir.exists()) {
+            cacheDir.mkdirs();
+        }
+        File outputFile = new File(cacheDir, CUSTOMIZE_BUTTON_INFO_FILE_NAME);
+        try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(new FileOutputStream(outputFile))) {
+            objectOutputStream.writeObject(customizableInfoArrayList);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        super.onDestroy();
     }
 }

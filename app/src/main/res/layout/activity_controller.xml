@@ -85,71 +85,71 @@
                 android:layout_weight="11"
                 android:orientation="horizontal">
 
+                <!--下面这部分在仅用于设计方便-->
+                <!--<com.scientificrat.robocon2017blecontrol.widget.CustomizableCommandButton-->
+                    <!--android:id="@+id/c_button"-->
+                    <!--android:layout_width="match_parent"-->
+                    <!--android:layout_height="match_parent"-->
+                    <!--android:layout_marginEnd="8dp"-->
+                    <!--android:layout_weight="1"-->
+                    <!--android:background="@drawable/blue_command_button"-->
+                    <!--android:text="位置0"-->
+                    <!--android:elevation="5dp"-->
+                    <!--/>-->
 
-                <com.scientificrat.robocon2017blecontrol.widget.CustomizableCommandButton
-                    android:id="@+id/c_button"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_marginEnd="8dp"
-                    android:layout_weight="1"
-                    android:background="@drawable/blue_command_button"
-                    android:text="位置0"
-                    android:elevation="5dp"
-                    />
+                <!--<com.scientificrat.robocon2017blecontrol.widget.CustomizableCommandButton-->
 
-                <com.scientificrat.robocon2017blecontrol.widget.CustomizableCommandButton
+                    <!--android:layout_width="match_parent"-->
+                    <!--android:layout_height="match_parent"-->
+                    <!--android:layout_marginEnd="8dp"-->
+                    <!--android:layout_weight="1"-->
+                    <!--android:background="@drawable/blue_command_button"-->
+                    <!--android:text="位置1" />-->
 
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_marginEnd="8dp"
-                    android:layout_weight="1"
-                    android:background="@drawable/blue_command_button"
-                    android:text="位置1" />
+                <!--<com.scientificrat.robocon2017blecontrol.widget.CustomizableCommandButton-->
 
-                <com.scientificrat.robocon2017blecontrol.widget.CustomizableCommandButton
+                    <!--android:layout_width="match_parent"-->
+                    <!--android:layout_height="match_parent"-->
+                    <!--android:layout_marginEnd="8dp"-->
+                    <!--android:layout_weight="1"-->
+                    <!--android:background="@drawable/blue_command_button"-->
+                    <!--android:text="位置2" />-->
 
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_marginEnd="8dp"
-                    android:layout_weight="1"
-                    android:background="@drawable/blue_command_button"
-                    android:text="位置2" />
+                <!--<com.scientificrat.robocon2017blecontrol.widget.CustomizableCommandButton-->
 
-                <com.scientificrat.robocon2017blecontrol.widget.CustomizableCommandButton
+                    <!--android:layout_width="match_parent"-->
+                    <!--android:layout_height="match_parent"-->
+                    <!--android:layout_marginEnd="8dp"-->
+                    <!--android:layout_weight="1"-->
+                    <!--android:background="@drawable/blue_command_button"-->
+                    <!--android:text="位置3" />-->
 
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_marginEnd="8dp"
-                    android:layout_weight="1"
-                    android:background="@drawable/blue_command_button"
-                    android:text="位置3" />
+                <!--<com.scientificrat.robocon2017blecontrol.widget.CustomizableCommandButton-->
+                    <!--android:layout_width="match_parent"-->
+                    <!--android:layout_height="match_parent"-->
+                    <!--android:layout_marginEnd="8dp"-->
+                    <!--android:layout_weight="1"-->
+                    <!--android:background="@drawable/blue_command_button"-->
+                    <!--android:text="位置4" />-->
 
-                <com.scientificrat.robocon2017blecontrol.widget.CustomizableCommandButton
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_marginEnd="8dp"
-                    android:layout_weight="1"
-                    android:background="@drawable/blue_command_button"
-                    android:text="位置4" />
+                <!--<com.scientificrat.robocon2017blecontrol.widget.CustomizableCommandButton-->
 
-                <com.scientificrat.robocon2017blecontrol.widget.CustomizableCommandButton
+                    <!--android:layout_width="match_parent"-->
+                    <!--android:layout_height="match_parent"-->
+                    <!--android:layout_marginEnd="8dp"-->
+                    <!--android:layout_weight="1"-->
+                    <!--android:background="@drawable/blue_command_button"-->
+                    <!--android:text="位置5" />-->
 
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_marginEnd="8dp"
-                    android:layout_weight="1"
-                    android:background="@drawable/blue_command_button"
-                    android:text="位置5" />
+                <!--<com.scientificrat.robocon2017blecontrol.widget.CustomizableCommandButton-->
 
-                <com.scientificrat.robocon2017blecontrol.widget.CustomizableCommandButton
-
-                    style="?borderlessButtonStyle"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_marginEnd="8dp"
-                    android:layout_weight="1"
-                    android:background="@drawable/blue_command_button"
-                    android:text="位置6" />
+                    <!--style="?borderlessButtonStyle"-->
+                    <!--android:layout_width="match_parent"-->
+                    <!--android:layout_height="match_parent"-->
+                    <!--android:layout_marginEnd="8dp"-->
+                    <!--android:layout_weight="1"-->
+                    <!--android:background="@drawable/blue_command_button"-->
+                    <!--android:text="位置6" />-->
 
 
             </LinearLayout>
@@ -171,7 +171,7 @@
                     android:foreground="@drawable/ic_add_black_24dp"
                     android:foregroundTint="@color/colorFont"
                     android:padding="20dp"
-                    android:onClick="addCommandButton"/>
+                    android:onClick="addNewCustomizeCommandButton"/>
 
             </LinearLayout>
 
