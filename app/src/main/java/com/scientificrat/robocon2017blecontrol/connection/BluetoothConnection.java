@@ -110,6 +110,7 @@ public class BluetoothConnection extends Thread {
             return;
         }
         this.outputStream.write(data);
+        this.outputStream.flush();
     }
 
     /**

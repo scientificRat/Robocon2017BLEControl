@@ -7,6 +7,9 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.Handler;
+import android.support.annotation.NonNull;
+import android.support.design.widget.BottomSheetBehavior;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -14,13 +17,16 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import com.scientificrat.robocon2017blecontrol.adapter.DeviceListAdapter;
 import com.scientificrat.robocon2017blecontrol.connection.BluetoothConnection;
@@ -38,6 +44,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 
 public class ControllerActivity extends AppCompatActivity {
@@ -81,6 +89,17 @@ public class ControllerActivity extends AppCompatActivity {
     private LinearLayout leftDrawer;
     private TextView dataReceiveTextView;
     private TextView connectionStateTextView;
+    private ToggleButton receiveDisplayToggleButton;
+    private Button clearReceiveButton;
+    private ScrollView dataReceiveScrollView;
+    private Button rotateForwardButton;
+    private Button rotateBackwardButton;
+    private Button rotateLeftButton;
+    private Button rotateRightButton;
+    private Button launchButton;
+    private BottomSheetBehavior bottomHidePanel;
+    private ImageButton showHiddenPanelButton;
+    private Button exitHiddenPanelButton;
 
 
     /**
@@ -90,11 +109,24 @@ public class ControllerActivity extends AppCompatActivity {
         deviceListView = (ListView) findViewById(R.id.device_list);
         customizeButtonContainer = (LinearLayout) findViewById(R.id.customize_command_button_container);
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-        bluetoothSettingButton = (ImageButton) findViewById(R.id.bluetooth_setsting);
+        bluetoothSettingButton = (ImageButton) findViewById(R.id.bluetooth_setting);
         connectButton = (Button) findViewById(R.id.connect);
         leftDrawer = (LinearLayout) findViewById(R.id.left_drawer);
         dataReceiveTextView = (TextView) findViewById(R.id.data_receive);
         connectionStateTextView = (TextView) findViewById(R.id.text_view_connection_state);
+        receiveDisplayToggleButton = (ToggleButton) findViewById(R.id.toggle_ascii);
+        clearReceiveButton = (Button) findViewById(R.id.clear_receive);
+        dataReceiveScrollView = (ScrollView) findViewById(R.id.data_receive_scrollview);
+
+        rotateForwardButton = (Button) findViewById(R.id.left_up);
+        rotateBackwardButton = (Button) findViewById(R.id.left_down);
+        rotateLeftButton = (Button) findViewById(R.id.left_left);
+        rotateRightButton = (Button) findViewById(R.id.left_right);
+        launchButton = (Button) findViewById(R.id.launch);
+        bottomHidePanel = BottomSheetBehavior.from(findViewById(R.id.hide_panel));
+        showHiddenPanelButton = (ImageButton) findViewById(R.id.show_hidden_panel);
+        exitHiddenPanelButton = (Button) findViewById(R.id.exit_hidden_panel_button);
+
     }
 
     /**
@@ -106,6 +138,8 @@ public class ControllerActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         // 从layout.xml 构建界面
         super.onCreate(savedInstanceState);
+        // 不休眠
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON, WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.activity_controller);
 
         // 获取所有view的引用
@@ -163,6 +197,37 @@ public class ControllerActivity extends AppCompatActivity {
             }
         });
 
+        // 底部滑入控制面板
+        bottomHidePanel.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
+            @Override
+            public void onStateChanged(@NonNull View bottomSheet, int newState) {
+                // disable dragging
+                if (newState == BottomSheetBehavior.STATE_DRAGGING) {
+                    bottomHidePanel.setState(BottomSheetBehavior.STATE_EXPANDED);
+                }
+            }
+            @Override
+            public void onSlide(@NonNull View bottomSheet, float slideOffset) {
+
+            }
+        });
+
+        showHiddenPanelButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                bottomHidePanel.setState(BottomSheetBehavior.STATE_EXPANDED);
+            }
+        });
+
+        exitHiddenPanelButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                bottomHidePanel.setState(BottomSheetBehavior.STATE_COLLAPSED);
+            }
+        });
+
+
+
 
         // 右上角蓝牙设置button 绑定事件
         bluetoothSettingButton.setOnClickListener(new View.OnClickListener() {
@@ -181,8 +246,54 @@ public class ControllerActivity extends AppCompatActivity {
             }
         });
 
+        // 清除接收
+        clearReceiveButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dataReceiveTextView.setText("");
+            }
+        });
+
+        // 下方黄色命令按钮
+        rotateForwardButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                sendBytes("\n\r1a\r\n".getBytes());
+            }
+        });
+
+        rotateBackwardButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                sendBytes("\n\r1b\r\n".getBytes());
+            }
+        });
+
+        rotateLeftButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                sendBytes("\n\r1c\r\n".getBytes());
+            }
+        });
+
+        rotateRightButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                sendBytes("\n\r1d\r\n".getBytes());
+            }
+        });
+
+        launchButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                sendBytes("\n\r1k\r\n".getBytes());
+            }
+        });
+
+
 
     }
+
 
 
     /**
@@ -208,6 +319,19 @@ public class ControllerActivity extends AppCompatActivity {
         // vibrate
         AppVibrator.vibrateShort(this);
         addCustomizeCommandButton(null);
+    }
+
+    private void sendBytes(byte[] buffer){
+        try {
+            BluetoothConnection connection = BluetoothConnection.getInstance();
+            if (connection == null) {
+                Toast.makeText(ControllerActivity.this, "蓝牙未连接", Toast.LENGTH_SHORT).show();
+            } else {
+                connection.sendRawData(buffer);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -360,11 +484,23 @@ public class ControllerActivity extends AppCompatActivity {
                     }
                 }, new OnDataInListener() {
                     @Override
-                    public void onDataIn(final byte[] data, int size) {
+                    public void onDataIn(final byte[] data, final int size) {
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                dataReceiveTextView.setText(HexHelper.byte2hexString(data));
+                                if (receiveDisplayToggleButton.isChecked()) {
+                                    Charset charset = Charset.forName("GBK");
+                                    charset.decode(ByteBuffer.wrap(data, 0, size));
+                                    dataReceiveTextView.append(charset.decode(ByteBuffer.wrap(data, 0, size)));
+                                } else {
+                                    dataReceiveTextView.append(HexHelper.byte2hexString(data, size));
+                                }
+                                new Handler().post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        dataReceiveScrollView.fullScroll(ScrollView.FOCUS_DOWN);
+                                    }
+                                });
                             }
                         });
                     }
@@ -455,6 +591,9 @@ public class ControllerActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * 退出时保存状态
+     */
     @Override
     protected void onDestroy() {
         // Save customize button state to file
@@ -478,5 +617,11 @@ public class ControllerActivity extends AppCompatActivity {
             e.printStackTrace();
         }
         super.onDestroy();
+    }
+
+    // 返回键进入后台程序
+    @Override
+    public void onBackPressed() {
+        moveTaskToBack(true);
     }
 }

@@ -14,8 +14,8 @@ public class HexHelper {
      */
     public static String byte2hexString(byte[] buffer) {
         StringBuilder sb = new StringBuilder();
-        for (byte aBuffer : buffer) {
-            String temp = Integer.toHexString(aBuffer & 0xFF).toUpperCase();
+        for (byte b : buffer) {
+            String temp = Integer.toHexString(b & 0xFF).toUpperCase();
             if (temp.length() == 1) {
                 temp = "0" + temp;
             }
@@ -23,6 +23,25 @@ public class HexHelper {
             sb.append(temp);
         }
         return sb.toString().trim();
+    }
+
+    /**
+     * 这个函数为了性能没有做越界检查
+     * @param buffer byte 数组
+     * @param size 数据大小
+     * @return 16进制格式的字符串
+     */
+    public static String byte2hexString(byte[] buffer, int size) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < size; i++) {
+            String temp = Integer.toHexString(buffer[i] & 0xFF).toUpperCase();
+            if (temp.length() == 1) {
+                temp = "0" + temp;
+            }
+            sb.append(" ");
+            sb.append(temp);
+        }
+        return sb.toString();
     }
 
     /**

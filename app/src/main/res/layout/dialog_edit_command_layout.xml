@@ -70,7 +70,7 @@
             android:layout_height="wrap_content"
             android:textColor="@color/colorFontLight"
             android:inputType="textVisiblePassword"
-            android:digits="`~!@#$%^*()_+{}|:&amp;&lt;&gt;&quot;&apos;[];,./\?ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890 "
+            android:digits="`~!@#$%^*()_+{}|:&amp;&lt;&gt;&quot;&apos;[];,./\\?ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890&#92; "
             />
     </LinearLayout>
 

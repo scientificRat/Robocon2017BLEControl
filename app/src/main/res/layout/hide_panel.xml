@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/hide_panel"
+    android:padding="10dp"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorWhite"
+    android:clickable="true"
+    app:behavior_peekHeight="0dp"
+    app:layout_behavior="@string/bottom_sheet_behavior"
+    tools:context=".ControllerActivity">
+
+    <com.scientificrat.robocon2017blecontrol.widget.Rocker
+        android:id="@+id/rockerLeft"
+        android:layout_width="218dp"
+        android:layout_height="143dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true" />
+
+    <Button
+        android:id="@+id/exit_hidden_panel_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignStart="@+id/emergencyToggleButton"
+        android:layout_below="@+id/emergencyToggleButton"
+        android:text="返回"
+        android:textColor="?android:attr/actionMenuTextColor" />
+
+    <ToggleButton
+        android:id="@+id/emergencyToggleButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:hapticFeedbackEnabled="true"
+        android:checked="false"
+        android:textOff="紧急制动"
+        android:textOn="解除制动" />
+
+    <com.scientificrat.robocon2017blecontrol.widget.Rocker
+        android:id="@+id/rockerRight"
+        android:layout_width="218dp"
+        android:layout_height="143dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentTop="true" />
+
+
+
+</RelativeLayout>
