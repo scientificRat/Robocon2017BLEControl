@@ -12,8 +12,8 @@ import java.util.UUID;
 /**
  * Created by huangzhengyue on 2016/10/27.
  */
-
-public class BluetoothConnection extends Thread {
+// FIXME: 2017/4/22 : 应该改为 instance 始终能拿到，然后有[连接／未连接]两种状态, establishConnection 异步建立连接
+public class BluetoothConnection extends Thread implements GeneralConnection {
     // 常量
     private static final String DEFAULT_DEVICE_UUID = "00001101-0000-1000-8000-00805F9B34FB";
     // singleton 单例模式
@@ -105,6 +105,7 @@ public class BluetoothConnection extends Thread {
      * @param data 数据
      * @throws IOException 异常
      */
+    @Override
     public synchronized void sendRawData(byte[] data) throws IOException {
         if (data == null) {
             return;
@@ -116,6 +117,7 @@ public class BluetoothConnection extends Thread {
     /**
      * 关闭接口
      */
+    @Override
     public void cancel() {
         try {
             this.bluetoothSocket.close();

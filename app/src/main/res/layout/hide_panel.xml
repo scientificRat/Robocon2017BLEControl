@@ -38,11 +38,12 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:orientation="vertical">
-            <Button
+            <com.scientificrat.robocon2017blecontrol.widget.TouchTriggerCommandButton
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_weight="1"
-                android:text="+"/>
+                android:text="+"
+                command="hello"/>
             <Button
                 android:layout_width="match_parent"
                 android:layout_height="0dp"

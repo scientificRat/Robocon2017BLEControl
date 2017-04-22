@@ -236,7 +236,7 @@
 
                         <ImageView
                             android:id="@+id/moon"
-                            android:layout_width="160dp"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_centerInParent="true"
                             android:adjustViewBounds="true"
@@ -246,15 +246,15 @@
                         </ImageView>
 
                         <RelativeLayout
-                            android:layout_width="160dp"
+                            android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:layout_alignBottom="@id/moon"
                             android:layout_centerInParent="true">
 
                             <Button
                                 android:id="@+id/left_up"
-                                android:layout_width="33dp"
-                                android:layout_height="33dp"
+                                android:layout_width="38dp"
+                                android:layout_height="38dp"
                                 android:layout_alignParentTop="true"
                                 android:layout_centerHorizontal="true"
                                 android:layout_marginTop="10dp"
@@ -262,8 +262,8 @@
 
                             <Button
                                 android:id="@+id/left_down"
-                                android:layout_width="33dp"
-                                android:layout_height="33dp"
+                                android:layout_width="38dp"
+                                android:layout_height="38dp"
                                 android:layout_alignParentBottom="true"
                                 android:layout_centerHorizontal="true"
                                 android:layout_marginBottom="10dp"
@@ -271,8 +271,8 @@
 
                             <Button
                                 android:id="@+id/left_left"
-                                android:layout_width="33dp"
-                                android:layout_height="33dp"
+                                android:layout_width="38dp"
+                                android:layout_height="38dp"
                                 android:layout_alignParentLeft="true"
                                 android:layout_centerVertical="true"
                                 android:layout_marginLeft="10dp"
@@ -280,8 +280,8 @@
 
                             <Button
                                 android:id="@+id/left_right"
-                                android:layout_width="33dp"
-                                android:layout_height="33dp"
+                                android:layout_width="38dp"
+                                android:layout_height="38dp"
                                 android:layout_alignParentRight="true"
                                 android:layout_centerVertical="true"
                                 android:layout_marginEnd="10dp"

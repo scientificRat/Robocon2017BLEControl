@@ -51,6 +51,8 @@ public class HexHelper {
      * @return byte数组
      */
     public static byte[] hexString2byte(String input) {
+
+        if(input==null) return null;
         int length = input.length();
         int byteSize;
         if (length % 2 == 0) {

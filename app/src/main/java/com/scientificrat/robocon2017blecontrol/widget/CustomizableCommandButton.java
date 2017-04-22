@@ -21,10 +21,6 @@ import com.scientificrat.robocon2017blecontrol.util.HexHelper;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.lang.reflect.Array;
-import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
-import java.nio.charset.CharsetDecoder;
 
 /**
  * Created by huangzhengyue on 2017/4/5.
@@ -106,6 +102,7 @@ public class CustomizableCommandButton extends AppCompatButton implements Serial
         customizableInfo = new CustomizableInfo();
         this.setText(customizableInfo.buttonText);
         initDefaultListeners();
+        attrs.getAttributeValue("app","");
     }
 
     public CustomizableCommandButton(Context context, AttributeSet attrs, int defStyleAttr) {
