@@ -39,7 +39,7 @@
                     android:textSize="22sp" />
 
                 <TextView
-                    android:id="@+id/text_view_connection_state"
+                    android:id="@+id/connection_state_text_view"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_gravity="center"
@@ -56,17 +56,17 @@
 
 
                     <ImageButton
-                        android:id="@+id/show_hidden_panel"
+                        android:id="@+id/show_hidden_panel_btn"
                         android:layout_width="30dp"
                         android:layout_height="30dp"
                         android:layout_centerVertical="true"
-                        android:layout_toStartOf="@+id/bluetooth_setting"
+                        android:layout_toStartOf="@+id/bluetooth_setting_btn"
                         android:layout_marginEnd="16dp"
                         android:background="?android:attr/selectableItemBackgroundBorderless"
                         android:foreground="@drawable/ic_av_timer_black_24dp" />
 
                     <ImageButton
-                        android:id="@+id/bluetooth_setting"
+                        android:id="@+id/bluetooth_setting_btn"
                         android:layout_width="30dp"
                         android:layout_height="30dp"
                         android:layout_alignParentEnd="true"
@@ -186,7 +186,6 @@
                         android:background="@drawable/blue_dashed_circle_button"
                         android:foreground="@drawable/ic_add_black_24dp"
                         android:foregroundTint="@color/colorFont"
-                        android:onClick="addNewCustomizeCommandButton"
                         android:padding="20dp" />
 
                 </LinearLayout>
@@ -252,7 +251,7 @@
                             android:layout_centerInParent="true">
 
                             <Button
-                                android:id="@+id/left_up"
+                                android:id="@+id/left_up_btn"
                                 android:layout_width="38dp"
                                 android:layout_height="38dp"
                                 android:layout_alignParentTop="true"
@@ -261,7 +260,7 @@
                                 android:background="@drawable/dark_yellow_circle" />
 
                             <Button
-                                android:id="@+id/left_down"
+                                android:id="@+id/left_down_btn"
                                 android:layout_width="38dp"
                                 android:layout_height="38dp"
                                 android:layout_alignParentBottom="true"
@@ -270,7 +269,7 @@
                                 android:background="@drawable/dark_yellow_circle" />
 
                             <Button
-                                android:id="@+id/left_left"
+                                android:id="@+id/left_left_btn"
                                 android:layout_width="38dp"
                                 android:layout_height="38dp"
                                 android:layout_alignParentLeft="true"
@@ -279,7 +278,7 @@
                                 android:background="@drawable/dark_yellow_circle" />
 
                             <Button
-                                android:id="@+id/left_right"
+                                android:id="@+id/left_right_btn"
                                 android:layout_width="38dp"
                                 android:layout_height="38dp"
                                 android:layout_alignParentRight="true"
@@ -404,7 +403,7 @@
                             android:foregroundTint="@color/colorFont" />
 
                         <Button
-                            android:id="@+id/launch"
+                            android:id="@+id/launch_btn"
                             android:layout_width="match_parent"
                             android:layout_height="0dp"
                             android:layout_weight="1"
@@ -422,7 +421,7 @@
 
 
         <LinearLayout
-            android:id="@+id/left_drawer"
+            android:id="@+id/left_drawer_layout"
             android:layout_width="200dp"
             android:layout_height="match_parent"
             android:layout_gravity="left"
@@ -437,7 +436,7 @@
                 android:layout_weight="1">
 
                 <TextView
-                    android:id="@+id/data_receive"
+                    android:id="@+id/data_receive_textview"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:scrollbars="vertical"
@@ -451,7 +450,7 @@
                 android:orientation="horizontal">
 
                 <ToggleButton
-                    android:id="@+id/toggle_ascii"
+                    android:id="@+id/receive_panel_ascii_toggle_button"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
@@ -461,7 +460,7 @@
                     android:textOn="ASCII" />
 
                 <Button
-                    android:id="@+id/clear_receive"
+                    android:id="@+id/clear_receive_btn"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
@@ -483,14 +482,14 @@
             android:orientation="vertical">
 
             <ListView
-                android:id="@+id/device_list"
+                android:id="@+id/device_listview"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_weight="1"
                 android:background="@color/colorSecond" />
 
             <Button
-                android:id="@+id/connect"
+                android:id="@+id/connect_btn"
                 android:layout_width="50dp"
                 android:layout_height="50dp"
                 android:layout_gravity="center"

@@ -1,16 +1,12 @@
 package com.scientificrat.robocon2017blecontrol;
 
 import android.bluetooth.BluetoothDevice;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.WindowManager;
@@ -45,80 +41,68 @@ import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+
 public class ControllerActivity extends AppCompatActivity {
 
     private static String CUSTOMIZE_BUTTON_INFO_FILE_NAME = "CustomizeButtons.info";
 
     // 蓝牙连接控制器
-    private BluetoothConnectionController bluetoothConnectionController = BluetoothConnectionController.getInstance();
+    private BluetoothConnectionController bluetoothConnectionController
+            = BluetoothConnectionController.getInstance();
     // 设备列表控制器(controller)
     DeviceListAdapter deviceListAdapter;
 
-    /**
-     * 这个将被注册到系统广播
-     * Create a BroadcastReceiver for BluetoothDevice.ACTION_FOUND
-     */
-    private final BroadcastReceiver mBlueToothDeviceFoundReceiver = new BroadcastReceiver() {
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-            // When discovery finds a device
-            if (BluetoothDevice.ACTION_FOUND.equals(action)) {
-                // Get the BluetoothDevice object from the Intent
-                BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                // Add to the device to my listView
-                ControllerActivity.this.deviceListAdapter.addDevice(device);
-            }
-        }
-    };
-
     // UI Widgets
-    private LinearLayout customizeButtonContainer;
-    private DrawerLayout drawerLayout;
-    private ListView deviceListView;
-    private ImageButton bluetoothSettingButton;
-    private Button connectButton;
-    private LinearLayout leftDrawer;
-    private TextView dataReceiveTextView;
-    private TextView connectionStateTextView;
-    private ToggleButton receiveDisplayToggleButton;
-    private Button clearReceiveButton;
-    private ScrollView dataReceiveScrollView;
-    private Button rotateForwardButton;
-    private Button rotateBackwardButton;
-    private Button rotateLeftButton;
-    private Button rotateRightButton;
-    private Button launchButton;
-    private BottomSheetBehavior bottomHidePanel;
-    private ImageButton showHiddenPanelButton;
-    private Button exitHiddenPanelButton;
+    @BindView(R.id.customize_command_button_container)
+    LinearLayout customizeButtonContainer;
 
+    @BindView(R.id.drawer_layout)
+    DrawerLayout drawerLayout;
 
-    /**
-     * 初始化 views (UI Widgets)
-     */
-    private void getViewsReferences() {
-        deviceListView = (ListView) findViewById(R.id.device_list);
-        customizeButtonContainer = (LinearLayout) findViewById(R.id.customize_command_button_container);
-        drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-        bluetoothSettingButton = (ImageButton) findViewById(R.id.bluetooth_setting);
-        connectButton = (Button) findViewById(R.id.connect);
-        leftDrawer = (LinearLayout) findViewById(R.id.left_drawer);
-        dataReceiveTextView = (TextView) findViewById(R.id.data_receive);
-        connectionStateTextView = (TextView) findViewById(R.id.text_view_connection_state);
-        receiveDisplayToggleButton = (ToggleButton) findViewById(R.id.toggle_ascii);
-        clearReceiveButton = (Button) findViewById(R.id.clear_receive);
-        dataReceiveScrollView = (ScrollView) findViewById(R.id.data_receive_scrollview);
+    @BindView(R.id.device_listview)
+    ListView deviceListView;
 
-        rotateForwardButton = (Button) findViewById(R.id.left_up);
-        rotateBackwardButton = (Button) findViewById(R.id.left_down);
-        rotateLeftButton = (Button) findViewById(R.id.left_left);
-        rotateRightButton = (Button) findViewById(R.id.left_right);
-        launchButton = (Button) findViewById(R.id.launch);
-        bottomHidePanel = BottomSheetBehavior.from(findViewById(R.id.hide_panel));
-        showHiddenPanelButton = (ImageButton) findViewById(R.id.show_hidden_panel);
-        exitHiddenPanelButton = (Button) findViewById(R.id.exit_hidden_panel_button);
+    @BindView(R.id.connect_btn)
+    Button connectButton;
 
-    }
+    @BindView(R.id.data_receive_textview)
+    TextView dataReceiveTextView;
+
+    @BindView(R.id.connection_state_text_view)
+    TextView connectionStateTextView;
+
+    @BindView(R.id.receive_panel_ascii_toggle_button)
+    ToggleButton receivePanelAsciiToggleButton;
+
+    @BindView(R.id.clear_receive_btn)
+    Button clearReceiveButton;
+
+    @BindView(R.id.data_receive_scrollview)
+    ScrollView dataReceiveScrollView;
+
+    @BindView(R.id.left_up_btn)
+    Button rotateForwardButton;
+
+    @BindView(R.id.left_down_btn)
+    Button rotateBackwardButton;
+
+    @BindView(R.id.left_left_btn)
+    Button rotateLeftButton;
+
+    @BindView(R.id.left_right_btn)
+    Button rotateRightButton;
+
+    @BindView(R.id.launch_btn)
+    Button launchButton;
+
+    @BindView(R.id.bottom_hide_panel)
+    View bottomHidePanelView;
+
+    BottomSheetBehavior bottomHidePanel;
+
 
     /**
      * OnCreate 方法
@@ -127,6 +111,7 @@ public class ControllerActivity extends AppCompatActivity {
      */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         // 从layout.xml 构建界面
         super.onCreate(savedInstanceState);
         // 不休眠
@@ -134,14 +119,11 @@ public class ControllerActivity extends AppCompatActivity {
                 WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.activity_controller);
 
-        // 获取所有view的引用
-        this.getViewsReferences();
-
         // 异步初始化蓝牙设备
         this.initBluetoothInBackground();
 
-        // 构建所有自定义发送按钮
-        this.constructCustomizedButton();
+        // 初始化UI
+        this.initUI();
 
         // 设备列表绑定适配器
         deviceListAdapter = new DeviceListAdapter(this);
@@ -204,37 +186,6 @@ public class ControllerActivity extends AppCompatActivity {
             }
         });
 
-        showHiddenPanelButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                bottomHidePanel.setState(BottomSheetBehavior.STATE_EXPANDED);
-            }
-        });
-
-        exitHiddenPanelButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                bottomHidePanel.setState(BottomSheetBehavior.STATE_COLLAPSED);
-            }
-        });
-
-        // 右上角蓝牙设置button 绑定事件
-        bluetoothSettingButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                openRightDrawer();
-            }
-        });
-
-
-        // 连接按键绑定事件
-        connectButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                connectButtonOnClick();
-            }
-        });
-
         // 清除接收
         clearReceiveButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -281,17 +232,19 @@ public class ControllerActivity extends AppCompatActivity {
 
     }
 
-
     /**
-     * 添加自定义发送按钮动作
-     *
-     * @param view 当前点击的视图
+     * 初始化UI
      */
-    public void addNewCustomizeCommandButton(View view) {
-        // vibrate
-        AppVibrator.vibrateShort(this);
-        addCustomizeCommandButton(null);
+    private void initUI() {
+        // 获取所有ui控件的引用
+        ButterKnife.bind(this);
+        // 底部上滑菜单
+        this.bottomHidePanel = BottomSheetBehavior.from(bottomHidePanelView);
+        // 构建所有自定义发送按钮
+        this.constructCustomizedButton();
     }
+
+
 
     private void sendBytes(byte[] buffer) {
         try {
@@ -352,7 +305,6 @@ public class ControllerActivity extends AppCompatActivity {
     private void constructCustomizedButtonInDefault() {
         // 默认构建7个按钮
         CustomizableCommandButton.CustomizableInfo info;
-        Log.d("func in", "constructCustomizedButtonInDefault: in!");
         for (int i = 0; i < 7; i++) {
             info = new CustomizableCommandButton.CustomizableInfo();
             info.setButtonText("位置" + i);
@@ -362,9 +314,38 @@ public class ControllerActivity extends AppCompatActivity {
 
 
     /**
+     * 添加自定义发送按钮动作
+     */
+    @OnClick(R.id.button_add_command_button)
+    public void addNewCustomizeCommandButton() {
+        // vibrate
+        AppVibrator.vibrateShort(this);
+        addCustomizeCommandButton(null);
+    }
+
+    /**
+     * 显示底部隐藏面板
+     */
+    @OnClick(R.id.show_hidden_panel_btn)
+    public void showBottomHidePanel(){
+        AppVibrator.vibrateShort(ControllerActivity.this);
+        bottomHidePanel.setState(BottomSheetBehavior.STATE_EXPANDED);
+    }
+
+    /**
+     * 退出底部隐藏面板
+     */
+    @OnClick(R.id.exit_hidden_panel_btn)
+    public void exitBottomHidePanel(){
+        AppVibrator.vibrateShort(ControllerActivity.this);
+        bottomHidePanel.setState(BottomSheetBehavior.STATE_COLLAPSED);
+    }
+
+    /**
      * 打开右边抽屉菜单相应动作
      */
-    private void openRightDrawer() {
+    @OnClick(R.id.bluetooth_setting_btn)
+    public void openRightDrawer() {
         // 震动
         AppVibrator.vibrateShort(ControllerActivity.this);
         if (!bluetoothConnectionController.isOpen()) {
@@ -381,7 +362,8 @@ public class ControllerActivity extends AppCompatActivity {
     /**
      * 连接按钮对应动作
      */
-    private void connectButtonOnClick() {
+    @OnClick(R.id.connect_btn)
+    public void connectButtonOnClick() {
         if (!bluetoothConnectionController.isOpen()) {
             Toast.makeText(ControllerActivity.this,
                     "正在连接设备,请稍后再试",
@@ -450,6 +432,7 @@ public class ControllerActivity extends AppCompatActivity {
         }
     }
 
+
     /**
      * 后台初始化蓝牙
      */
@@ -479,7 +462,7 @@ public class ControllerActivity extends AppCompatActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        if (receiveDisplayToggleButton.isChecked()) {
+                        if (receivePanelAsciiToggleButton.isChecked()) {
                             Charset charset = Charset.forName("GBK");
                             charset.decode(ByteBuffer.wrap(data, 0, size));
                             dataReceiveTextView.append(charset.decode(ByteBuffer.wrap(data, 0, size)));
@@ -514,12 +497,6 @@ public class ControllerActivity extends AppCompatActivity {
                 });
             }
         });
-
-//        // 请求定位权限，垃圾安卓在6.0 不开启这个权限不能扫描周边蓝牙设备
-//        int MY_PERMISSIONS_REQUEST_ACCESS_COARSE_LOCATION = 1;
-//        ActivityCompat.requestPermissions(this,
-//                new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
-//                MY_PERMISSIONS_REQUEST_ACCESS_COARSE_LOCATION);
     }
 
     /**
@@ -561,7 +538,7 @@ public class ControllerActivity extends AppCompatActivity {
             if (commandButton.getVisibility() == View.GONE) continue;
             customizableInfoArrayList.add(commandButton.getCustomizableInfo());
         }
-        // save
+        // Save
         File cacheDir = getCacheDir();
         if (!cacheDir.exists()) {
             cacheDir.mkdirs();
