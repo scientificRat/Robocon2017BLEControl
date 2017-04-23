@@ -1,16 +1,12 @@
 package com.scientificrat.robocon2017blecontrol;
 
-import android.Manifest;
-import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetBehavior;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -29,7 +25,8 @@ import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import com.scientificrat.robocon2017blecontrol.adapter.DeviceListAdapter;
-import com.scientificrat.robocon2017blecontrol.connection.BluetoothConnection;
+import com.scientificrat.robocon2017blecontrol.connection.BluetoothConnectionController;
+import com.scientificrat.robocon2017blecontrol.connection.OnBluetoothDeviceFoundListener;
 import com.scientificrat.robocon2017blecontrol.connection.OnConnectListener;
 import com.scientificrat.robocon2017blecontrol.connection.OnConnectionBreakListener;
 import com.scientificrat.robocon2017blecontrol.connection.OnDataInListener;
@@ -52,14 +49,8 @@ public class ControllerActivity extends AppCompatActivity {
 
     private static String CUSTOMIZE_BUTTON_INFO_FILE_NAME = "CustomizeButtons.info";
 
-    // 成功开启蓝牙后，onActivityResult 收到的code
-    private final int BLUETOOTH_REQUEST_ENABLE_BT = 2;
-    // 成功开启蓝牙标志
-    private boolean bluetoothOpen = false;
-    // 成功连接设备
-    private boolean bluetoothDeviceConnected = false;
-    // 蓝牙适配器（controller）
-    private BluetoothAdapter bluetoothAdapter;
+    // 蓝牙连接控制器
+    private BluetoothConnectionController bluetoothConnectionController = BluetoothConnectionController.getInstance();
     // 设备列表控制器(controller)
     DeviceListAdapter deviceListAdapter;
 
@@ -139,18 +130,18 @@ public class ControllerActivity extends AppCompatActivity {
         // 从layout.xml 构建界面
         super.onCreate(savedInstanceState);
         // 不休眠
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON, WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON,
+                WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.activity_controller);
 
         // 获取所有view的引用
         this.getViewsReferences();
 
-        // 初始化蓝牙设备
-        this.initBluetooth();
+        // 异步初始化蓝牙设备
+        this.initBluetoothInBackground();
 
         // 构建所有自定义发送按钮
         this.constructCustomizedButton();
-
 
         // 设备列表绑定适配器
         deviceListAdapter = new DeviceListAdapter(this);
@@ -206,6 +197,7 @@ public class ControllerActivity extends AppCompatActivity {
                     bottomHidePanel.setState(BottomSheetBehavior.STATE_EXPANDED);
                 }
             }
+
             @Override
             public void onSlide(@NonNull View bottomSheet, float slideOffset) {
 
@@ -225,9 +217,6 @@ public class ControllerActivity extends AppCompatActivity {
                 bottomHidePanel.setState(BottomSheetBehavior.STATE_COLLAPSED);
             }
         });
-
-
-
 
         // 右上角蓝牙设置button 绑定事件
         bluetoothSettingButton.setOnClickListener(new View.OnClickListener() {
@@ -290,23 +279,6 @@ public class ControllerActivity extends AppCompatActivity {
             }
         });
 
-
-
-    }
-
-
-
-    /**
-     * 开启蓝牙外部程序返回会调用这个函数
-     */
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        // 如果蓝牙开启成功, 设置当前状态为开启
-        if (requestCode == BLUETOOTH_REQUEST_ENABLE_BT) {
-            // FIXME: 2016/10/28 有可能返回失败，还没有处理resultCode
-            this.bluetoothOpen = true;
-        }
     }
 
 
@@ -321,13 +293,12 @@ public class ControllerActivity extends AppCompatActivity {
         addCustomizeCommandButton(null);
     }
 
-    private void sendBytes(byte[] buffer){
+    private void sendBytes(byte[] buffer) {
         try {
-            BluetoothConnection connection = BluetoothConnection.getInstance();
-            if (connection == null) {
+            if (!bluetoothConnectionController.isConnected()) {
                 Toast.makeText(ControllerActivity.this, "蓝牙未连接", Toast.LENGTH_SHORT).show();
             } else {
-                connection.sendRawData(buffer);
+                bluetoothConnectionController.sendRawData(buffer);
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -396,7 +367,7 @@ public class ControllerActivity extends AppCompatActivity {
     private void openRightDrawer() {
         // 震动
         AppVibrator.vibrateShort(ControllerActivity.this);
-        if (!bluetoothOpen) {
+        if (!bluetoothConnectionController.isOpen()) {
             Toast.makeText(ControllerActivity.this,
                     "正在初始化蓝牙设备,请等待",
                     Toast.LENGTH_SHORT).show();
@@ -411,7 +382,7 @@ public class ControllerActivity extends AppCompatActivity {
      * 连接按钮对应动作
      */
     private void connectButtonOnClick() {
-        if (!bluetoothOpen) {
+        if (!bluetoothConnectionController.isOpen()) {
             Toast.makeText(ControllerActivity.this,
                     "正在连接设备,请稍后再试",
                     Toast.LENGTH_SHORT).show();
@@ -419,20 +390,12 @@ public class ControllerActivity extends AppCompatActivity {
             return;
         }
         // 根据状态执行连接／断开连接操作
-        if (bluetoothDeviceConnected) {
-            // 检查是否连接还在(此时状态是已连接)
-            BluetoothConnection bluetoothConnection = BluetoothConnection.getInstance();
-            if (bluetoothConnection == null) {
-                bluetoothDeviceConnected = false;
-                connectionStateTextView.setText("未连接");
-                return;
-            }
+        if (bluetoothConnectionController.isConnected()) {
             // 断开连接
-            bluetoothConnection.cancel();
+            bluetoothConnectionController.cancel();
             connectButton.setText("连接");
             connectionStateTextView.setText("未连接");
             deviceListView.setEnabled(true);
-            bluetoothDeviceConnected = false;
 
         } else {
             BluetoothDevice selectedDevice = deviceListAdapter.getSelectedDevice();
@@ -443,24 +406,20 @@ public class ControllerActivity extends AppCompatActivity {
                 deviceListView.setEnabled(false);
                 drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_OPEN, Gravity.RIGHT);
 
-                // 连接设备
-                BluetoothConnection.createInstance(selectedDevice, new OnConnectListener() {
+
+                // Do connecting in background
+                bluetoothConnectionController.connectInBackground(selectedDevice, new OnConnectListener() {
                     @Override
                     public void onConnectSuccess() {
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
                                 // 连接成功
-                                bluetoothDeviceConnected = true;
                                 connectionStateTextView.setText("已连接");
                                 deviceListView.setEnabled(false);
                                 connectButton.setText("断开");
                                 connectButton.setEnabled(true);
                                 drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, Gravity.RIGHT);
-                                BluetoothConnection bluetoothConnection = BluetoothConnection.getInstance();
-                                if (bluetoothConnection != null) {
-                                    bluetoothConnection.start();
-                                }
                             }
                         });
                     }
@@ -473,7 +432,6 @@ public class ControllerActivity extends AppCompatActivity {
                                 // 连接失败
                                 Toast.makeText(ControllerActivity.this, "连接失败", Toast.LENGTH_SHORT).show();
                                 connectionStateTextView.setText("未连接");
-                                bluetoothDeviceConnected = false;
                                 deviceListView.setEnabled(true);
                                 connectButton.setText("连接");
                                 connectButton.setEnabled(true);
@@ -481,44 +439,6 @@ public class ControllerActivity extends AppCompatActivity {
                             }
                         });
 
-                    }
-                }, new OnDataInListener() {
-                    @Override
-                    public void onDataIn(final byte[] data, final int size) {
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                if (receiveDisplayToggleButton.isChecked()) {
-                                    Charset charset = Charset.forName("GBK");
-                                    charset.decode(ByteBuffer.wrap(data, 0, size));
-                                    dataReceiveTextView.append(charset.decode(ByteBuffer.wrap(data, 0, size)));
-                                } else {
-                                    dataReceiveTextView.append(HexHelper.byte2hexString(data, size));
-                                }
-                                new Handler().post(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        dataReceiveScrollView.fullScroll(ScrollView.FOCUS_DOWN);
-                                    }
-                                });
-                            }
-                        });
-                    }
-                }, new OnConnectionBreakListener() {
-                    @Override
-                    public void onConnectionBreak() {
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                Toast.makeText(ControllerActivity.this, "连接中断", Toast.LENGTH_SHORT).show();
-                                connectionStateTextView.setText("未连接");
-                                bluetoothDeviceConnected = false;
-                                deviceListView.setEnabled(true);
-                                connectButton.setText("连接");
-                                connectButton.setEnabled(true);
-                                drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
-                            }
-                        });
                     }
                 });
 
@@ -530,31 +450,76 @@ public class ControllerActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * 后台初始化蓝牙
+     */
+    private void initBluetoothInBackground() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                initBluetooth();
+            }
+        }).start();
+    }
+
 
     /**
      * 初始化蓝牙设备
      */
-    private boolean initBluetooth() {
-        bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        if (bluetoothAdapter == null) {
+    private void initBluetooth() {
+        if (!bluetoothConnectionController.openBluetooth()) {
             // Device does not support Bluetooth then alert
-            Toast.makeText(getApplicationContext(), "你的手机不支持蓝牙TAT～", Toast.LENGTH_LONG).show();
-            return false;
-        }
-        if (!bluetoothAdapter.isEnabled()) {
-            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            startActivityForResult(enableBtIntent, BLUETOOTH_REQUEST_ENABLE_BT);
-            return false;
-        } else {
-            this.bluetoothOpen = true;
+            Toast.makeText(getApplicationContext(), "无法打开蓝牙TAT～", Toast.LENGTH_LONG).show();
         }
 
-        // 请求定位权限，垃圾安卓在6.0 不开启这个权限不能扫描周边蓝牙设备
-        int MY_PERMISSIONS_REQUEST_ACCESS_COARSE_LOCATION = 1;
-        ActivityCompat.requestPermissions(this,
-                new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
-                MY_PERMISSIONS_REQUEST_ACCESS_COARSE_LOCATION);
-        return true;
+        // set on dataInListener
+        bluetoothConnectionController.setOnDataInListener(new OnDataInListener() {
+            @Override
+            public void onDataIn(final byte[] data, final int size) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (receiveDisplayToggleButton.isChecked()) {
+                            Charset charset = Charset.forName("GBK");
+                            charset.decode(ByteBuffer.wrap(data, 0, size));
+                            dataReceiveTextView.append(charset.decode(ByteBuffer.wrap(data, 0, size)));
+                        } else {
+                            dataReceiveTextView.append(HexHelper.byte2hexString(data, size));
+                        }
+                        new Handler().post(new Runnable() {
+                            @Override
+                            public void run() {
+                                dataReceiveScrollView.fullScroll(ScrollView.FOCUS_DOWN);
+                            }
+                        });
+                    }
+                });
+            }
+        });
+
+        // set on connectionBreakListener
+        bluetoothConnectionController.setOnConnectionBreakListener(new OnConnectionBreakListener() {
+            @Override
+            public void onConnectionBreak() {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(ControllerActivity.this, "连接中断", Toast.LENGTH_SHORT).show();
+                        connectionStateTextView.setText("未连接");
+                        deviceListView.setEnabled(true);
+                        connectButton.setText("连接");
+                        connectButton.setEnabled(true);
+                        drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+                    }
+                });
+            }
+        });
+
+//        // 请求定位权限，垃圾安卓在6.0 不开启这个权限不能扫描周边蓝牙设备
+//        int MY_PERMISSIONS_REQUEST_ACCESS_COARSE_LOCATION = 1;
+//        ActivityCompat.requestPermissions(this,
+//                new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
+//                MY_PERMISSIONS_REQUEST_ACCESS_COARSE_LOCATION);
     }
 
     /**
@@ -562,33 +527,24 @@ public class ControllerActivity extends AppCompatActivity {
      */
     private void startDiscovery() {
         // 如果已经连接设备则不扫描
-        if (bluetoothDeviceConnected) {
+        if (bluetoothConnectionController.isConnected()) {
             return;
         }
         deviceListAdapter.clear();
         // 扫描设备
-        BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        // 开启扫描,如果已经开启，先关闭
-        if (bluetoothAdapter.isDiscovering()) {
-            bluetoothAdapter.cancelDiscovery();
-        }
-        bluetoothAdapter.startDiscovery();
-        // 注册 BroadcastReceiver
-        IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
-        registerReceiver(mBlueToothDeviceFoundReceiver, filter);
+        bluetoothConnectionController.scan(new OnBluetoothDeviceFoundListener() {
+            @Override
+            public void onBlueToothDeviceFound(BluetoothDevice bluetoothDevice) {
+                deviceListAdapter.addDevice(bluetoothDevice);
+            }
+        });
     }
 
     /**
      * 停止扫描蓝牙设备
      */
     private void stopDiscovery() {
-        // 停止扫描蓝牙设备
-        try {
-            BluetoothAdapter.getDefaultAdapter().cancelDiscovery();
-            unregisterReceiver(mBlueToothDeviceFoundReceiver);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        bluetoothConnectionController.stopScanning();
     }
 
     /**
@@ -619,7 +575,9 @@ public class ControllerActivity extends AppCompatActivity {
         super.onDestroy();
     }
 
-    // 返回键进入后台程序
+    /**
+     * 返回键进入后台程序
+     */
     @Override
     public void onBackPressed() {
         moveTaskToBack(true);

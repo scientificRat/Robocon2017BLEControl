@@ -7,7 +7,7 @@ import android.view.MotionEvent;
 import android.widget.Button;
 import android.widget.Toast;
 
-import com.scientificrat.robocon2017blecontrol.connection.GeneralConnection;
+import com.scientificrat.robocon2017blecontrol.connection.ConnectionController;
 import com.scientificrat.robocon2017blecontrol.util.HexHelper;
 
 import java.io.IOException;
@@ -23,7 +23,7 @@ public class TouchTriggerCommandButton extends Button {
     private String sendFailToastString = "发送失败";
     private byte[] touchDownSendBuffer;
     private byte[] touchUpSendBuffer;
-    private GeneralConnection connection = null;
+    private ConnectionController connection = null;
 
     public TouchTriggerCommandButton(Context context) {
         super(context);
@@ -52,7 +52,7 @@ public class TouchTriggerCommandButton extends Button {
         if (connectionClass != null) {
             try {
                 Method method = Class.forName(connectionClass).getMethod("getInstance");
-                connection = (GeneralConnection) method.invoke(null);
+                connection = (ConnectionController) method.invoke(null);
             } catch (NoSuchMethodException |
                     ClassNotFoundException |
                     InvocationTargetException |
@@ -91,11 +91,11 @@ public class TouchTriggerCommandButton extends Button {
     }
 
     // getter setters:
-    public GeneralConnection getConnection() {
+    public ConnectionController getConnection() {
         return connection;
     }
 
-    public void setConnection(GeneralConnection connection) {
+    public void setConnection(ConnectionController connection) {
         this.connection = connection;
     }
 

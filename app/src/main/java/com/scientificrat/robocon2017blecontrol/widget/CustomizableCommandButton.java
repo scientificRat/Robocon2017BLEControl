@@ -15,7 +15,7 @@ import android.widget.Toast;
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.scientificrat.robocon2017blecontrol.R;
-import com.scientificrat.robocon2017blecontrol.connection.BluetoothConnection;
+import com.scientificrat.robocon2017blecontrol.connection.BluetoothConnectionController;
 import com.scientificrat.robocon2017blecontrol.util.AppVibrator;
 import com.scientificrat.robocon2017blecontrol.util.HexHelper;
 
@@ -102,7 +102,7 @@ public class CustomizableCommandButton extends AppCompatButton implements Serial
         customizableInfo = new CustomizableInfo();
         this.setText(customizableInfo.buttonText);
         initDefaultListeners();
-        attrs.getAttributeValue("app","");
+        attrs.getAttributeValue("app", "");
     }
 
     public CustomizableCommandButton(Context context, AttributeSet attrs, int defStyleAttr) {
@@ -141,8 +141,8 @@ public class CustomizableCommandButton extends AppCompatButton implements Serial
             public void onClick(View v) {
                 if (state == NORMAL_STATE) {
                     AppVibrator.vibrateShort(getContext());
-                    BluetoothConnection bluetoothConnection = BluetoothConnection.getInstance();
-                    if (bluetoothConnection == null) {
+                    BluetoothConnectionController bluetoothConnection = BluetoothConnectionController.getInstance();
+                    if (!bluetoothConnection.isConnected()) {
                         Toast.makeText(getContext(), "蓝牙未连接", Toast.LENGTH_SHORT).show();
                         return;
                     }
