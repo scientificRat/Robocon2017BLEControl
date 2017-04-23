@@ -7,7 +7,7 @@ import android.util.TypedValue;
  * Created by huangzhengyue on 2017/4/7.
  */
 
-public class MesurementUtility {
+public class MeasurementUtility {
     public static int convertDPtoPX(Resources r ,int dp){
         return  (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, r.getDisplayMetrics());
     }

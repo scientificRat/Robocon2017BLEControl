@@ -35,7 +35,7 @@ import com.scientificrat.robocon2017blecontrol.connection.OnConnectionBreakListe
 import com.scientificrat.robocon2017blecontrol.connection.OnDataInListener;
 import com.scientificrat.robocon2017blecontrol.util.AppVibrator;
 import com.scientificrat.robocon2017blecontrol.util.HexHelper;
-import com.scientificrat.robocon2017blecontrol.util.MesurementUtility;
+import com.scientificrat.robocon2017blecontrol.util.MeasurementUtility;
 import com.scientificrat.robocon2017blecontrol.widget.CustomizableCommandButton;
 
 import java.io.File;
@@ -349,7 +349,7 @@ public class ControllerActivity extends AppCompatActivity {
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.MATCH_PARENT);
         params.weight = 1.0f;
-        params.setMarginEnd(MesurementUtility.convertDPtoPX(getResources(), 8));
+        params.setMarginEnd(MeasurementUtility.convertDPtoPX(getResources(), 8));
         customizeButtonContainer.addView(button, params);
     }
 
