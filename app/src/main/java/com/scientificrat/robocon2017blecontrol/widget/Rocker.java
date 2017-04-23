@@ -9,31 +9,36 @@ import android.view.MotionEvent;
 import android.view.View;
 
 import java.util.ArrayList;
+import java.util.Date;
 
 /**
  * Created by huangzhengyue on 2016/10/25.
  */
 
 public class Rocker extends View {
-    private Paint pen = new Paint();
 
     private final float DEFAULT_RADIUS = 150;
     private final float DEFAULT_BAR_RADIUS = 150 / 2.5F;
-    //输出的范围 [-RANGE,+RANGE]
+    private final long DEFAULT_TRIGGER_DELTA_TIME = 100; //ms
+    // 输出的范围 [-RANGE,+RANGE]
     private final float RANGE = 1;
-
+    // 最大半径
     private final float MAX_RADIUS = 220;
+    // 画笔
+    private Paint pen = new Paint();
 
     private float radius = DEFAULT_RADIUS;
     private float barRadius = DEFAULT_BAR_RADIUS;
     private float width = DEFAULT_RADIUS;
     private float height = DEFAULT_RADIUS;
+    private long triggerDeltaTime = DEFAULT_TRIGGER_DELTA_TIME;
     // barX barY 是 【中央bar摇杆中心点】 相对于该整个控件(0,0)点的x,y偏移
     private float barX = 200;
     private float barY = 200;
 
-    private float lastBarX = 200;
-    private float lastBarY = 200;
+    // 计时
+    private long lastTriggerTime = 0;
+
     //输出值
     private volatile float outputX = 0;
     private volatile float outputY = 0;
@@ -87,8 +92,6 @@ public class Rocker extends View {
             this.barX = width / 2;
             this.barY = height / 2;
 
-            this.lastBarX = this.barX;
-            this.lastBarY = this.barY;
             // 计算输出
             this.outputX = (barX - width / 2) / this.radius * RANGE;
             this.outputY = (barY - height / 2) / this.radius * RANGE;
@@ -117,13 +120,14 @@ public class Rocker extends View {
             // 计算输出
             this.outputX = (barX - width / 2) / this.radius * RANGE;
             this.outputY = (barY - height / 2) / this.radius * RANGE;
-            //listener callback (设置了一定的触发阈值)
-            if (this.onRockerChangeListener != null && (Math.abs(barX - lastBarX) >= 1.5 || Math.abs(barY - lastBarY) >= 1.5)) {
-                onRockerChangeListener.onRockerChange(this.outputX, this.outputY);
+            // listener callback
+            if (onRockerChangeListener != null) {
+                long currTime = System.currentTimeMillis();
+                if (currTime - lastTriggerTime > triggerDeltaTime) {
+                    onRockerChangeListener.onRockerChange(this.outputX, this.outputY);
+                }
+                lastTriggerTime = currTime;
             }
-            lastBarX = barX;
-            lastBarY = barY;
-
         }
         //eat this event, so I do not call the super method
         //let it redraw
@@ -152,5 +156,13 @@ public class Rocker extends View {
 
     public float getOutputY() {
         return outputY;
+    }
+
+    public long getTriggerDeltaTime() {
+        return triggerDeltaTime;
+    }
+
+    public void setTriggerDeltaTime(long triggerDeltaTime) {
+        this.triggerDeltaTime = triggerDeltaTime;
     }
 }
