@@ -20,10 +20,13 @@ import java.lang.reflect.Method;
 
 @SuppressLint("AppCompatCustomView")
 public class TouchTriggerCommandButton extends Button {
+
+    private ConnectionController connection = null;
     private String sendFailToastString = "发送失败";
+    private String notConnectedToastString = "蓝牙未连接";
     private byte[] touchDownSendBuffer;
     private byte[] touchUpSendBuffer;
-    private ConnectionController connection = null;
+
 
     public TouchTriggerCommandButton(Context context) {
         super(context);
@@ -31,20 +34,20 @@ public class TouchTriggerCommandButton extends Button {
 
     public TouchTriggerCommandButton(Context context, AttributeSet attrs) {
         super(context, attrs);
-        this.initSendBuffer(attrs);
+        this.dealAttrs(attrs);
     }
 
     public TouchTriggerCommandButton(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        this.initSendBuffer(attrs);
+        this.dealAttrs(attrs);
     }
 
     public TouchTriggerCommandButton(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
-        this.initSendBuffer(attrs);
+        this.dealAttrs(attrs);
     }
 
-    private void initSendBuffer(AttributeSet attrs) {
+    private void dealAttrs(AttributeSet attrs) {
         // parse from xml
         this.touchDownSendBuffer = HexHelper.hexString2byte(attrs.getAttributeValue(null, "touchDownCommand"));
         this.touchUpSendBuffer = HexHelper.hexString2byte(attrs.getAttributeValue(null, "touchUpCommand"));
@@ -60,13 +63,17 @@ public class TouchTriggerCommandButton extends Button {
                 e.printStackTrace();
             }
         }
-
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
+                if (!connection.isConnected()) {
+                    Toast.makeText(getContext(), notConnectedToastString, Toast.LENGTH_SHORT).show();
+                    break;
+                }
                 if (touchDownSendBuffer != null) {
                     try {
                         connection.sendRawData(touchDownSendBuffer);
@@ -77,6 +84,10 @@ public class TouchTriggerCommandButton extends Button {
                 }
                 break;
             case MotionEvent.ACTION_UP:
+                if (!connection.isConnected()) {
+                    Toast.makeText(getContext(), notConnectedToastString, Toast.LENGTH_SHORT).show();
+                    break;
+                }
                 if (touchUpSendBuffer != null) {
                     try {
                         connection.sendRawData(touchUpSendBuffer);
@@ -121,5 +132,13 @@ public class TouchTriggerCommandButton extends Button {
 
     public void setSendFailToastString(String sendFailToastString) {
         this.sendFailToastString = sendFailToastString;
+    }
+
+    public String getNotConnectedToastString() {
+        return notConnectedToastString;
+    }
+
+    public void setNotConnectedToastString(String notConnectedToastString) {
+        this.notConnectedToastString = notConnectedToastString;
     }
 }

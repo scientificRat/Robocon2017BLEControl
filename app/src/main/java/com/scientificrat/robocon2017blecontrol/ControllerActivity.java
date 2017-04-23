@@ -77,26 +77,8 @@ public class ControllerActivity extends AppCompatActivity {
     @BindView(R.id.receive_panel_ascii_toggle_button)
     ToggleButton receivePanelAsciiToggleButton;
 
-    @BindView(R.id.clear_receive_btn)
-    Button clearReceiveButton;
-
     @BindView(R.id.data_receive_scrollview)
     ScrollView dataReceiveScrollView;
-
-    @BindView(R.id.left_up_btn)
-    Button rotateForwardButton;
-
-    @BindView(R.id.left_down_btn)
-    Button rotateBackwardButton;
-
-    @BindView(R.id.left_left_btn)
-    Button rotateLeftButton;
-
-    @BindView(R.id.left_right_btn)
-    Button rotateRightButton;
-
-    @BindView(R.id.launch_btn)
-    Button launchButton;
 
     @BindView(R.id.bottom_hide_panel)
     View bottomHidePanelView;
@@ -186,50 +168,6 @@ public class ControllerActivity extends AppCompatActivity {
             }
         });
 
-        // 清除接收
-        clearReceiveButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dataReceiveTextView.setText("");
-            }
-        });
-
-        // 下方黄色命令按钮
-        rotateForwardButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                sendBytes("\n\r1a\r\n".getBytes());
-            }
-        });
-
-        rotateBackwardButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                sendBytes("\n\r1b\r\n".getBytes());
-            }
-        });
-
-        rotateLeftButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                sendBytes("\n\r1c\r\n".getBytes());
-            }
-        });
-
-        rotateRightButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                sendBytes("\n\r1d\r\n".getBytes());
-            }
-        });
-
-        launchButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                sendBytes("\n\r1k\r\n".getBytes());
-            }
-        });
-
     }
 
     /**
@@ -243,7 +181,6 @@ public class ControllerActivity extends AppCompatActivity {
         // 构建所有自定义发送按钮
         this.constructCustomizedButton();
     }
-
 
 
     private void sendBytes(byte[] buffer) {
@@ -327,7 +264,7 @@ public class ControllerActivity extends AppCompatActivity {
      * 显示底部隐藏面板
      */
     @OnClick(R.id.show_hidden_panel_btn)
-    public void showBottomHidePanel(){
+    public void showBottomHidePanel() {
         AppVibrator.vibrateShort(ControllerActivity.this);
         bottomHidePanel.setState(BottomSheetBehavior.STATE_EXPANDED);
     }
@@ -336,7 +273,7 @@ public class ControllerActivity extends AppCompatActivity {
      * 退出底部隐藏面板
      */
     @OnClick(R.id.exit_hidden_panel_btn)
-    public void exitBottomHidePanel(){
+    public void exitBottomHidePanel() {
         AppVibrator.vibrateShort(ControllerActivity.this);
         bottomHidePanel.setState(BottomSheetBehavior.STATE_COLLAPSED);
     }
@@ -430,6 +367,11 @@ public class ControllerActivity extends AppCompatActivity {
                         Toast.LENGTH_SHORT).show();
             }
         }
+    }
+
+    @OnClick(R.id.clear_receive_btn)
+    public void clearReceive() {
+        dataReceiveTextView.setText("");
     }
 
 

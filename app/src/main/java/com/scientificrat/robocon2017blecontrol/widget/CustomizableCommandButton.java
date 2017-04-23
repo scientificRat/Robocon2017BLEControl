@@ -29,8 +29,8 @@ import java.io.Serializable;
 public class CustomizableCommandButton extends AppCompatButton implements Serializable {
 
     // ------------------Const variables-------------------
-    private final static int NORMAL_STATE = 0;
-    private final static int EDITING_STATE = 1;
+    public final static int NORMAL_STATE = 0;
+    public final static int EDITING_STATE = 1;
     private final static int ASCII_FORMAT = 0;
     private final static int HEX_FORMAT = 1;
     // 创建按键时的默认文字

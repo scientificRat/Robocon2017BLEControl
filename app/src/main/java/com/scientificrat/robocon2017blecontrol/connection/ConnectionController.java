@@ -9,4 +9,5 @@ import java.io.IOException;
 public interface ConnectionController {
     void sendRawData(byte[] data) throws IOException;
     void cancel();
+    boolean isConnected();
 }
