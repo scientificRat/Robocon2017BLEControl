@@ -13,7 +13,7 @@
     tools:context=".ControllerActivity">
 
     <com.scientificrat.robocon2017blecontrol.widget.Rocker
-        android:id="@+id/rockerLeft"
+        android:id="@+id/left_rocker"
         android:layout_width="218dp"
         android:layout_height="143dp"
         android:layout_alignParentBottom="true"
@@ -28,8 +28,8 @@
         android:layout_marginEnd="24dp"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_toEndOf="@+id/rockerLeft"
-        android:layout_toStartOf="@+id/rockerRight"
+        android:layout_toEndOf="@+id/left_rocker"
+        android:layout_toStartOf="@+id/right_rocker"
         android:layout_above="@+id/emergencyToggleButton"
         android:orientation="horizontal">
 
@@ -78,8 +78,8 @@
         android:id="@+id/exit_hidden_panel_btn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_toEndOf="@+id/rockerLeft"
-        android:layout_toStartOf="@id/rockerRight"
+        android:layout_toEndOf="@+id/left_rocker"
+        android:layout_toStartOf="@id/right_rocker"
         android:layout_below="@+id/emergencyToggleButton"
         android:layout_marginTop="8dp"
         android:layout_marginBottom="8dp"
@@ -95,8 +95,8 @@
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
         android:hapticFeedbackEnabled="true"
-        android:layout_toEndOf="@+id/rockerLeft"
-        android:layout_toStartOf="@id/rockerRight"
+        android:layout_toEndOf="@+id/left_rocker"
+        android:layout_toStartOf="@id/right_rocker"
         android:layout_marginTop="4dp"
         android:layout_marginBottom="8dp"
         android:layout_marginStart="24dp"
@@ -106,7 +106,7 @@
         android:textOn="解除制动" />
 
     <com.scientificrat.robocon2017blecontrol.widget.Rocker
-        android:id="@+id/rockerRight"
+        android:id="@+id/right_rocker"
         android:layout_width="218dp"
         android:layout_height="143dp"
         android:layout_alignParentBottom="true"

@@ -29,6 +29,8 @@ import com.scientificrat.robocon2017blecontrol.util.AppVibrator;
 import com.scientificrat.robocon2017blecontrol.util.HexHelper;
 import com.scientificrat.robocon2017blecontrol.util.MeasurementUtility;
 import com.scientificrat.robocon2017blecontrol.widget.CustomizableCommandButton;
+import com.scientificrat.robocon2017blecontrol.widget.OnRockerChangeListener;
+import com.scientificrat.robocon2017blecontrol.widget.Rocker;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -37,8 +39,10 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.TimerTask;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -53,6 +57,8 @@ public class ControllerActivity extends AppCompatActivity {
             = BluetoothConnectionController.getInstance();
     // 设备列表控制器(controller)
     DeviceListAdapter deviceListAdapter;
+    // 紧急制动状态
+    private boolean inEmergencyState = false;
 
     // UI Widgets
     @BindView(R.id.customize_command_button_container)
@@ -81,6 +87,12 @@ public class ControllerActivity extends AppCompatActivity {
 
     @BindView(R.id.bottom_hide_panel)
     View bottomHidePanelView;
+    // 左摇杆
+    @BindView(R.id.left_rocker)
+    Rocker leftRocker;
+    // 右摇杆
+    @BindView(R.id.right_rocker)
+    Rocker rightRocker;
 
     BottomSheetBehavior bottomHidePanel;
 
@@ -166,6 +178,36 @@ public class ControllerActivity extends AppCompatActivity {
 
             }
         });
+        java.util.Timer timer = new java.util.Timer(true);
+        TimerTask timerTask = new TimerTask() {
+            @Override
+            public void run() {
+                short left_x = (short) (leftRocker.getOutputX() / leftRocker.getRange() * 1000);
+                short left_y = (short) (-leftRocker.getOutputY() / leftRocker.getRange() * 1000);
+                short right_x = (short) (rightRocker.getOutputX() / rightRocker.getRange() * 1000);
+                short right_y = (short) (-rightRocker.getOutputY() / rightRocker.getRange() * 1000);
+                if (inEmergencyState) {
+                    left_x = 0;
+                    left_y = 0;
+                    right_x = 0;
+                    right_y = 0;
+                }
+                ByteBuffer byteBuffer = ByteBuffer.allocate(13);
+                //小端序
+                byteBuffer.order(ByteOrder.LITTLE_ENDIAN);
+                byteBuffer.putShort((short) 0x0d0a);
+                byteBuffer.put((byte) '0');
+                byteBuffer.putShort(left_x);
+                byteBuffer.putShort(left_y);
+                byteBuffer.putShort(right_x);
+                byteBuffer.putShort(right_y);
+                byteBuffer.putShort((short) 0x0a0d);
+                sendBytes(byteBuffer.array());
+            }
+        };
+        // 从现在起20ms 发送一次指令
+        timer.schedule(timerTask, 1, 100);
+
 
     }
 
