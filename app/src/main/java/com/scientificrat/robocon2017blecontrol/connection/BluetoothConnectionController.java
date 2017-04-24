@@ -2,7 +2,6 @@ package com.scientificrat.robocon2017blecontrol.connection;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothSocket;
 import android.bluetooth.le.BluetoothLeScanner;
 import android.bluetooth.le.ScanCallback;
@@ -112,7 +111,6 @@ public class BluetoothConnectionController implements ConnectionController {
      */
     public boolean openBluetooth() {
         BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        this.bluetoothLeScanner = bluetoothAdapter.getBluetoothLeScanner();
         if (bluetoothAdapter == null) {
             // Device does not support Bluetooth
             return false;
@@ -123,6 +121,7 @@ public class BluetoothConnectionController implements ConnectionController {
         if (!bluetoothAdapter.isEnabled()) {
             return false;
         }
+        this.bluetoothLeScanner = bluetoothAdapter.getBluetoothLeScanner();
         this.connectionState = STATE_OPEN_AND_DISCONNECTED;
         return true;
     }

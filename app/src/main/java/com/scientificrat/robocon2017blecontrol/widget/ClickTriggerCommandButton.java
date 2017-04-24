@@ -6,12 +6,8 @@ import android.util.AttributeSet;
 import android.widget.Button;
 import android.widget.Toast;
 
-import com.scientificrat.robocon2017blecontrol.connection.ConnectionController;
+import com.scientificrat.robocon2017blecontrol.sender.CommandSender;
 import com.scientificrat.robocon2017blecontrol.util.HexHelper;
-
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 
 /**
  * Created by huangzhengyue on 2017/4/21.
@@ -19,10 +15,10 @@ import java.lang.reflect.Method;
 @SuppressLint("AppCompatCustomView")
 public class ClickTriggerCommandButton extends Button {
 
-    private ConnectionController connection = null;
+    private CommandSender commandSender = CommandSender.getInstance();
     private String sendFailToastString = "发送失败";
-    private String notConnectedToastString = "蓝牙未连接";
-    private byte[] sendBuffer = null;
+    // 发送键值
+    private byte command = 0;
 
     public ClickTriggerCommandButton(Context context) {
         super(context);
@@ -44,43 +40,20 @@ public class ClickTriggerCommandButton extends Button {
     }
 
     private void dealAttrs(AttributeSet attrs) {
-        this.sendBuffer = HexHelper.hexString2byte(attrs.getAttributeValue(null, "clickedCommand"));
-        String connectionClass = attrs.getAttributeValue(null, "connectionClass");
-        if (connectionClass != null) {
-            try {
-                Method method = Class.forName(connectionClass).getMethod("getInstance");
-                connection = (ConnectionController) method.invoke(null);
-            } catch (NoSuchMethodException |
-                    ClassNotFoundException |
-                    InvocationTargetException |
-                    IllegalAccessException e) {
-                e.printStackTrace();
-            }
+        byte[] bytes = HexHelper.hexString2byte(attrs.getAttributeValue(null, "command"));
+        if (bytes != null && bytes.length > 0) {
+            this.command = bytes[0];
         }
     }
 
     @Override
     public boolean performClick() {
-        if(!connection.isConnected()){
-            Toast.makeText(getContext(), notConnectedToastString, Toast.LENGTH_SHORT).show();
-        }
-        if (sendBuffer != null) {
-            try {
-                connection.sendRawData(sendBuffer);
-            } catch (IOException e) {
-                e.printStackTrace();
-                Toast.makeText(getContext(), sendFailToastString, Toast.LENGTH_SHORT).show();
-            }
+        if (!commandSender.isStarted()) {
+            Toast.makeText(getContext(), sendFailToastString, Toast.LENGTH_SHORT).show();
+        } else {
+            commandSender.setKey(command);
         }
         return super.performClick();
-    }
-
-    public ConnectionController getConnection() {
-        return connection;
-    }
-
-    public void setConnection(ConnectionController connection) {
-        this.connection = connection;
     }
 
     public String getSendFailToastString() {
@@ -91,19 +64,4 @@ public class ClickTriggerCommandButton extends Button {
         this.sendFailToastString = sendFailToastString;
     }
 
-    public byte[] getSendBuffer() {
-        return sendBuffer;
-    }
-
-    public void setSendBuffer(byte[] sendBuffer) {
-        this.sendBuffer = sendBuffer;
-    }
-
-    public String getNotConnectedToastString() {
-        return notConnectedToastString;
-    }
-
-    public void setNotConnectedToastString(String notConnectedToastString) {
-        this.notConnectedToastString = notConnectedToastString;
-    }
 }

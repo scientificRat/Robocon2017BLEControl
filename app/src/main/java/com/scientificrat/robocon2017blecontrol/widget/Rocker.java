@@ -19,7 +19,7 @@ public class Rocker extends View {
 
     private final float DEFAULT_RADIUS = 150;
     private final float DEFAULT_BAR_RADIUS = 150 / 2.5F;
-    private final long DEFAULT_TRIGGER_DELTA_TIME = 100; //ms
+    private final long DEFAULT_TRIGGER_DELTA_TIME = 10; //ms
     // 输出的范围 [-RANGE,+RANGE]
     private final float RANGE = 1;
     // 最大半径

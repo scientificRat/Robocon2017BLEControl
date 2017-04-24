@@ -25,6 +25,7 @@ import com.scientificrat.robocon2017blecontrol.connection.OnBluetoothDeviceFound
 import com.scientificrat.robocon2017blecontrol.connection.OnConnectListener;
 import com.scientificrat.robocon2017blecontrol.connection.OnConnectionBreakListener;
 import com.scientificrat.robocon2017blecontrol.connection.OnDataInListener;
+import com.scientificrat.robocon2017blecontrol.sender.CommandSender;
 import com.scientificrat.robocon2017blecontrol.util.AppVibrator;
 import com.scientificrat.robocon2017blecontrol.util.HexHelper;
 import com.scientificrat.robocon2017blecontrol.util.MeasurementUtility;
@@ -39,13 +40,12 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.TimerTask;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnCheckedChanged;
 import butterknife.OnClick;
 
 public class ControllerActivity extends AppCompatActivity {
@@ -57,8 +57,8 @@ public class ControllerActivity extends AppCompatActivity {
             = BluetoothConnectionController.getInstance();
     // 设备列表控制器(controller)
     DeviceListAdapter deviceListAdapter;
-    // 紧急制动状态
-    private boolean inEmergencyState = false;
+    // 命令发送器
+    CommandSender commandSender = CommandSender.getInstance();
 
     // UI Widgets
     @BindView(R.id.customize_command_button_container)
@@ -95,7 +95,6 @@ public class ControllerActivity extends AppCompatActivity {
     Rocker rightRocker;
 
     BottomSheetBehavior bottomHidePanel;
-
 
     /**
      * OnCreate 方法
@@ -175,39 +174,26 @@ public class ControllerActivity extends AppCompatActivity {
 
             @Override
             public void onSlide(@NonNull View bottomSheet, float slideOffset) {
-
             }
         });
-        java.util.Timer timer = new java.util.Timer(true);
-        TimerTask timerTask = new TimerTask() {
-            @Override
-            public void run() {
-                short left_x = (short) (leftRocker.getOutputX() / leftRocker.getRange() * 1000);
-                short left_y = (short) (-leftRocker.getOutputY() / leftRocker.getRange() * 1000);
-                short right_x = (short) (rightRocker.getOutputX() / rightRocker.getRange() * 1000);
-                short right_y = (short) (-rightRocker.getOutputY() / rightRocker.getRange() * 1000);
-                if (inEmergencyState) {
-                    left_x = 0;
-                    left_y = 0;
-                    right_x = 0;
-                    right_y = 0;
-                }
-                ByteBuffer byteBuffer = ByteBuffer.allocate(13);
-                //小端序
-                byteBuffer.order(ByteOrder.LITTLE_ENDIAN);
-                byteBuffer.putShort((short) 0x0d0a);
-                byteBuffer.put((byte) '0');
-                byteBuffer.putShort(left_x);
-                byteBuffer.putShort(left_y);
-                byteBuffer.putShort(right_x);
-                byteBuffer.putShort(right_y);
-                byteBuffer.putShort((short) 0x0a0d);
-                sendBytes(byteBuffer.array());
-            }
-        };
-        // 从现在起20ms 发送一次指令
-        timer.schedule(timerTask, 1, 100);
 
+        // 左摇杆
+        leftRocker.setOnRockerChangeListener(new OnRockerChangeListener() {
+            @Override
+            public void onRockerChange(float xShittingRatio, float yShittingRatio) {
+                commandSender.setLeftX((short) (xShittingRatio * 1000));
+                commandSender.setLeftY((short) (yShittingRatio * 1000));
+            }
+        });
+
+        // 右摇杆
+        rightRocker.setOnRockerChangeListener(new OnRockerChangeListener() {
+            @Override
+            public void onRockerChange(float xShittingRatio, float yShittingRatio) {
+                commandSender.setRightX((short) (xShittingRatio * 1000));
+                commandSender.setRightY((short) (yShittingRatio * 1000));
+            }
+        });
 
     }
 
@@ -365,8 +351,6 @@ public class ControllerActivity extends AppCompatActivity {
                 connectButton.setEnabled(false);
                 deviceListView.setEnabled(false);
                 drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_OPEN, Gravity.RIGHT);
-
-
                 // Do connecting in background
                 bluetoothConnectionController.connectInBackground(selectedDevice, new OnConnectListener() {
                     @Override
@@ -380,6 +364,9 @@ public class ControllerActivity extends AppCompatActivity {
                                 connectButton.setText("断开");
                                 connectButton.setEnabled(true);
                                 drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, Gravity.RIGHT);
+                                if (!commandSender.start()){
+                                    Toast.makeText(ControllerActivity.this, "FUCK I don't know what happened", Toast.LENGTH_SHORT).show();
+                                }
                             }
                         });
                     }
@@ -416,6 +403,12 @@ public class ControllerActivity extends AppCompatActivity {
     }
 
 
+    @OnCheckedChanged(R.id.emergencyToggleButton)
+    public void toggleEmergency(boolean isChecked) {
+        CommandSender.getInstance().setInEmergencyState(isChecked);
+    }
+
+
     /**
      * 后台初始化蓝牙
      */
@@ -435,9 +428,14 @@ public class ControllerActivity extends AppCompatActivity {
     private void initBluetooth() {
         if (!bluetoothConnectionController.openBluetooth()) {
             // Device does not support Bluetooth then alert
-            Toast.makeText(getApplicationContext(), "无法打开蓝牙TAT～", Toast.LENGTH_LONG).show();
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(ControllerActivity.this, "无法打开蓝牙TAT～", Toast.LENGTH_LONG).show();
+                }
+            });
+            return;
         }
-
         // set on dataInListener
         bluetoothConnectionController.setOnDataInListener(new OnDataInListener() {
             @Override
@@ -541,5 +539,18 @@ public class ControllerActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         moveTaskToBack(true);
+    }
+
+
+    @Override
+    protected void onPause() {
+        this.commandSender.stop();
+        super.onPause();
+    }
+
+    @Override
+    protected void onResume() {
+        this.commandSender.start();
+        super.onResume();
     }
 }

@@ -216,11 +216,10 @@
                     android:gravity="center_vertical"
                     android:orientation="horizontal">
 
-                    <com.scientificrat.robocon2017blecontrol.widget.ble.BleTouchTriggerButton
+                    <com.scientificrat.robocon2017blecontrol.widget.MovementCommandButton
                         android:id="@+id/button6"
                         style="@style/Widget.AppCompat.Button.Borderless"
-                        touchDownCommand="0a0d 30 FE0C 0000 0000 0000 0d0a"
-                        touchUpCommand="0a0d 30 0000 0000 0000 0000 0d0a"
+                        command="-500,0,0,0"
                         android:layout_width="match_parent"
                         android:layout_height="100dp"
                         android:layout_marginEnd="16dp"
@@ -252,9 +251,9 @@
                             android:layout_alignBottom="@id/moon"
                             android:layout_centerInParent="true">
 
-                            <com.scientificrat.robocon2017blecontrol.widget.ble.BleClickTriggerButton
+                            <com.scientificrat.robocon2017blecontrol.widget.ClickTriggerCommandButton
                                 android:id="@+id/left_up_btn"
-                                clickedCommand="0a0d31610d0a"
+                                command="61"
                                 android:layout_width="38dp"
                                 android:layout_height="38dp"
                                 android:layout_alignParentTop="true"
@@ -262,9 +261,9 @@
                                 android:layout_marginTop="10dp"
                                 android:background="@drawable/dark_yellow_circle" />
 
-                            <com.scientificrat.robocon2017blecontrol.widget.ble.BleClickTriggerButton
+                            <com.scientificrat.robocon2017blecontrol.widget.ClickTriggerCommandButton
                                 android:id="@+id/left_down_btn"
-                                clickedCommand="0a0d31620d0a"
+                                command="62"
                                 android:layout_width="38dp"
                                 android:layout_height="38dp"
                                 android:layout_alignParentBottom="true"
@@ -272,9 +271,9 @@
                                 android:layout_marginBottom="10dp"
                                 android:background="@drawable/dark_yellow_circle" />
 
-                            <com.scientificrat.robocon2017blecontrol.widget.ble.BleClickTriggerButton
+                            <com.scientificrat.robocon2017blecontrol.widget.ClickTriggerCommandButton
                                 android:id="@+id/left_left_btn"
-                                clickedCommand="0a0d31630d0a"
+                                command="63"
                                 android:layout_width="38dp"
                                 android:layout_height="38dp"
                                 android:layout_alignParentLeft="true"
@@ -282,9 +281,9 @@
                                 android:layout_marginLeft="10dp"
                                 android:background="@drawable/dark_yellow_circle" />
 
-                            <com.scientificrat.robocon2017blecontrol.widget.ble.BleClickTriggerButton
+                            <com.scientificrat.robocon2017blecontrol.widget.ClickTriggerCommandButton
                                 android:id="@+id/left_right_btn"
-                                clickedCommand="0a0d31640d0a"
+                                command="64"
                                 android:layout_width="38dp"
                                 android:layout_height="38dp"
                                 android:layout_alignParentRight="true"
@@ -301,14 +300,13 @@
                         </RelativeLayout>
                     </RelativeLayout>
 
-                    <com.scientificrat.robocon2017blecontrol.widget.ble.BleTouchTriggerButton
+                    <com.scientificrat.robocon2017blecontrol.widget.MovementCommandButton
+                        command="500,0,0,0"
                         android:layout_width="match_parent"
                         android:layout_height="100dp"
                         android:layout_marginEnd="16dp"
                         android:layout_weight="1"
-                        android:background="@drawable/right_moon_like_button"
-                        touchDownCommand="0a0d 30 01f4 0000 0000 0000 0d0a"
-                        touchUpCommand="0a0d 30 0000 0000 0000 0000 0d0a"/>
+                        android:background="@drawable/right_moon_like_button" />
 
                 </LinearLayout>
 
@@ -332,7 +330,8 @@
                             android:layout_height="0dp"
                             android:layout_weight="1" />
 
-                        <com.scientificrat.robocon2017blecontrol.widget.ble.BleTouchTriggerButton
+                        <com.scientificrat.robocon2017blecontrol.widget.MovementCommandButton
+                            command ="0,0,-500,0"
                             android:layout_width="match_parent"
                             android:layout_height="0dp"
                             android:layout_weight="0.8"
@@ -340,11 +339,9 @@
                             android:elevation="5dp"
                             android:foreground="@drawable/ic_keyboard_arrow_left_black_24dp"
                             android:foregroundGravity="center"
-                            android:foregroundTint="@color/colorFont"
-                            touchDownCommand="0a0d 30 0000 0000 fe0c 0000 0d0a"
-                            touchUpCommand="0a0d 30 0000 0000 0000 0000 0d0a"/>
+                            android:foregroundTint="@color/colorFont" />
 
-                        <com.scientificrat.robocon2017blecontrol.widget.ble.BleClickTriggerButton
+                        <com.scientificrat.robocon2017blecontrol.widget.ClickTriggerCommandButton
                             android:layout_width="match_parent"
                             android:layout_height="0dp"
                             android:layout_weight="1"
@@ -362,10 +359,9 @@
                         android:layout_weight="1"
                         android:orientation="vertical">
 
-                        <com.scientificrat.robocon2017blecontrol.widget.ble.BleTouchTriggerButton
+                        <com.scientificrat.robocon2017blecontrol.widget.MovementCommandButton
                             android:id="@+id/bleTouchTriggerButton"
-                            touchDownCommand="0a0d 30 0000 0000 0000 01f4 0d0a"
-                            touchUpCommand="0a0d 30 0000 0000 0000 0000 0d0a"
+                            command="0,0,0,500"
                             android:layout_width="match_parent"
                             android:layout_height="0dp"
                             android:layout_weight="1"
@@ -381,7 +377,8 @@
 
                             android:layout_weight="0.8" />
 
-                        <com.scientificrat.robocon2017blecontrol.widget.ble.BleTouchTriggerButton
+                        <com.scientificrat.robocon2017blecontrol.widget.MovementCommandButton
+                            command ="0,0,0,-500"
                             android:layout_width="match_parent"
                             android:layout_height="0dp"
                             android:layout_weight="1"
@@ -389,9 +386,7 @@
                             android:elevation="5dp"
                             android:foreground="@drawable/ic_keyboard_arrow_down_black_24dp"
                             android:foregroundGravity="center"
-                            android:foregroundTint="@color/colorFont"
-                            touchDownCommand="0a0d 30 0000 0000 0000 fe0c 0d0a"
-                            touchUpCommand="0a0d 30 0000 0000 0000 0000 0d0a"/>
+                            android:foregroundTint="@color/colorFont" />
                     </LinearLayout>
 
 
@@ -407,7 +402,8 @@
                             android:layout_height="0dp"
                             android:layout_weight="1" />
 
-                        <com.scientificrat.robocon2017blecontrol.widget.ble.BleTouchTriggerButton
+                        <com.scientificrat.robocon2017blecontrol.widget.MovementCommandButton
+                            command ="0,0,500,0"
                             android:layout_width="match_parent"
                             android:layout_height="0dp"
                             android:layout_weight="0.8"
@@ -415,13 +411,11 @@
                             android:elevation="5dp"
                             android:foreground="@drawable/ic_keyboard_arrow_right_black_24dp"
                             android:foregroundGravity="center"
-                            android:foregroundTint="@color/colorFont"
-                            touchDownCommand="0a0d 30 0000 0000 01f4 0000 0d0a"
-                            touchUpCommand="0a0d 30 0000 0000 0000 0000 0d0a"/>
+                            android:foregroundTint="@color/colorFont" />
 
-                        <com.scientificrat.robocon2017blecontrol.widget.ble.BleClickTriggerButton
+                        <com.scientificrat.robocon2017blecontrol.widget.ClickTriggerCommandButton
                             android:id="@+id/launch_btn"
-                            clickedCommand="0a0d316B0d0a"
+                            command="6B"
                             android:layout_width="match_parent"
                             android:layout_height="0dp"
                             android:layout_weight="1"

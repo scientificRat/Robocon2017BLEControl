@@ -1,5 +1,7 @@
 package com.scientificrat.robocon2017blecontrol.util;
 
+import java.util.Arrays;
+
 /**
  * Created by huangzhengyue on 2017/4/7.
  */
@@ -27,8 +29,9 @@ public class HexHelper {
 
     /**
      * 这个函数为了性能没有做越界检查
+     *
      * @param buffer byte 数组
-     * @param size 数据大小
+     * @param size   数据大小
      * @return 16进制格式的字符串
      */
     public static String byte2hexString(byte[] buffer, int size) {
@@ -52,7 +55,7 @@ public class HexHelper {
      */
     public static byte[] hexString2byte(String input) {
 
-        if(input==null) return null;
+        if (input == null) return null;
         int length = input.length();
         int byteSize;
         if (length % 2 == 0) {
@@ -63,7 +66,7 @@ public class HexHelper {
         }
         byte[] rst = new byte[byteSize];
         for (int i = 0; i < byteSize; i++) {
-            rst[i] = Byte.parseByte(input.substring(i * 2, i * 2 + 2), 16);
+            rst[i] = (byte) (Short.parseShort(input.substring(i * 2, i * 2 + 2), 16));
         }
         return rst;
 

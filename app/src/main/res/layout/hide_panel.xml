@@ -38,17 +38,18 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:orientation="vertical">
-            <com.scientificrat.robocon2017blecontrol.widget.TouchTriggerCommandButton
+            <com.scientificrat.robocon2017blecontrol.widget.ClickTriggerCommandButton
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_weight="1"
                 android:text="+"
-                command="hello"/>
-            <Button
+                command="a1"/>
+            <com.scientificrat.robocon2017blecontrol.widget.ClickTriggerCommandButton
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_weight="1"
-                android:text="-"/>
+                android:text="-"
+                command="a2"/>
 
         </LinearLayout>
         <LinearLayout
@@ -57,18 +58,18 @@
             android:layout_weight="1"
             android:orientation="vertical">
 
-            <Button
+            <com.scientificrat.robocon2017blecontrol.widget.ClickTriggerCommandButton
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_weight="1"
-                android:text="+"/>
-            <Button
+                android:text="+"
+                command="a3"/>
+            <com.scientificrat.robocon2017blecontrol.widget.ClickTriggerCommandButton
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_weight="1"
-                android:text="-"/>
-
-
+                android:text="-"
+                command="a4"/>
 
         </LinearLayout>
 

@@ -1,4 +1,4 @@
-package com.scientificrat.robocon2017blecontrol.trasmitter;
+package com.scientificrat.robocon2017blecontrol.sender;
 
 import com.scientificrat.robocon2017blecontrol.connection.BluetoothConnectionController;
 import com.scientificrat.robocon2017blecontrol.connection.ConnectionController;
@@ -26,17 +26,17 @@ public class CommandSender {
 
     private int delayInMillis = DEFAULT_DELAY_MS;
 
-    private byte key = 0;
+    private volatile byte key = 0;
 
-    private short leftX;
+    private volatile short leftX;
 
-    private short leftY;
+    private volatile short leftY;
 
-    private short rightX;
+    private volatile short rightX;
 
-    private short rightY;
+    private volatile short rightY;
 
-    private boolean inEmergencyState;
+    private volatile boolean inEmergencyState;
 
     private int state = STATE_STOP;
 
@@ -47,26 +47,30 @@ public class CommandSender {
     private TimerTask timerTask = new TimerTask() {
         @Override
         public void run() {
-            if (inEmergencyState) {
-                leftX = leftY = rightX = rightY = 0;
-            }
             ByteBuffer byteBuffer = ByteBuffer.allocate(13);
             //小端序
             byteBuffer.order(ByteOrder.LITTLE_ENDIAN);
-            byteBuffer.putShort((short) 0x0d0a)
-                    .put(key)
-                    .putShort(leftX)
-                    .putShort(leftY)
-                    .putShort(rightX)
-                    .putShort(rightY)
-                    .putShort((short) 0x0a0d);
+            byteBuffer.putShort((short) 0x0d0a).put(key);
+            // reset key
+            key = 0;
+            if (inEmergencyState) {
+                // 8bytes - 0
+                byteBuffer.putLong(0);
+            } else {
+                byteBuffer.putShort(leftX)
+                        .putShort(leftY)
+                        .putShort(rightX)
+                        .putShort(rightY);
+            }
+
+            byteBuffer.putShort((short) 0x0a0d);
             try {
                 connectionController.sendRawData(byteBuffer.array());
             } catch (IOException e) {
                 e.printStackTrace();
+                stop();
             }
-            // reset key
-            key = 0;
+
         }
     };
 
@@ -78,11 +82,37 @@ public class CommandSender {
     private CommandSender() {
     }
 
-    public void start() {
+    /**
+     * 开启发送
+     *
+     * @param delayInMillis 发送延时
+     * @return 是否开启成功
+     */
+    public boolean start(int delayInMillis) {
+        if (!connectionController.isConnected()) {
+            return false;
+        }
+        if (this.state == STATE_START) {
+            return true;
+        }
+        this.delayInMillis = delayInMillis;
         timer.schedule(this.timerTask, this.delayInMillis);
         this.state = STATE_START;
+        return true;
     }
 
+    /**
+     * 开启发送
+     *
+     * @return 是否开启成功
+     */
+    public boolean start() {
+        return start(DEFAULT_DELAY_MS);
+    }
+
+    /**
+     * 停止发送
+     */
     public void stop() {
         timer.cancel();
         this.state = STATE_STOP;
@@ -142,5 +172,20 @@ public class CommandSender {
 
     public void setInEmergencyState(boolean inEmergencyState) {
         this.inEmergencyState = inEmergencyState;
+    }
+
+    public boolean isStarted() {
+        return state == STATE_START;
+    }
+
+    public void setSpeedZero() {
+        leftX = leftY = rightX = rightY = 0;
+    }
+
+    public void setSpeed(short leftX, short leftY, short rightX, short rightY) {
+        this.leftX = leftX;
+        this.leftY = leftY;
+        this.rightX = rightX;
+        this.rightY = rightY;
     }
 }
