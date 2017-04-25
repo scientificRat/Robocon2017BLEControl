@@ -1,9 +1,11 @@
 package com.scientificrat.robocon2017blecontrol;
 
+import android.Manifest;
 import android.bluetooth.BluetoothDevice;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetBehavior;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -364,7 +366,7 @@ public class ControllerActivity extends AppCompatActivity {
                                 connectButton.setText("断开");
                                 connectButton.setEnabled(true);
                                 drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, Gravity.RIGHT);
-                                if (!commandSender.start()){
+                                if (!commandSender.start()) {
                                     Toast.makeText(ControllerActivity.this, "FUCK I don't know what happened", Toast.LENGTH_SHORT).show();
                                 }
                             }
@@ -426,7 +428,7 @@ public class ControllerActivity extends AppCompatActivity {
      * 初始化蓝牙设备
      */
     private void initBluetooth() {
-        if (!bluetoothConnectionController.openBluetooth()) {
+        if (!bluetoothConnectionController.openBluetooth(this)) {
             // Device does not support Bluetooth then alert
             runOnUiThread(new Runnable() {
                 @Override
@@ -478,6 +480,11 @@ public class ControllerActivity extends AppCompatActivity {
                 });
             }
         });
+        // 请求定位权限，垃圾安卓在6.0 不开启这个权限不能扫描周边蓝牙设备
+        int MY_PERMISSIONS_REQUEST_ACCESS_COARSE_LOCATION = 1;
+        ActivityCompat.requestPermissions(this,
+                new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
+                MY_PERMISSIONS_REQUEST_ACCESS_COARSE_LOCATION);
     }
 
     /**

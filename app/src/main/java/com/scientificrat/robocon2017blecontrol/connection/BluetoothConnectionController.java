@@ -6,12 +6,19 @@ import android.bluetooth.BluetoothSocket;
 import android.bluetooth.le.BluetoothLeScanner;
 import android.bluetooth.le.ScanCallback;
 import android.bluetooth.le.ScanResult;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.util.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.List;
 import java.util.UUID;
+
+import static android.bluetooth.BluetoothAdapter.ACTION_DISCOVERY_FINISHED;
 
 /**
  * Created by huangzhengyue on 2016/10/27.
@@ -30,6 +37,10 @@ public class BluetoothConnectionController implements ConnectionController {
     private static BluetoothConnectionController instance = new BluetoothConnectionController();
 
     private BluetoothLeScanner bluetoothLeScanner;
+
+    private Context appContext = null;
+
+    private BluetoothAdapter bluetoothAdapter;
 
     // The connected device
     private BluetoothDevice bluetoothDevice;
@@ -52,15 +63,42 @@ public class BluetoothConnectionController implements ConnectionController {
 
     private OnBluetoothDeviceFoundListener onBluetoothDeviceFoundListener = null;
 
+
     private ScanCallback scanCallback = new ScanCallback() {
         @Override
         public void onScanResult(int callbackType, ScanResult result) {
             if (onBluetoothDeviceFoundListener != null && result.getDevice() != null) {
+//                Log.e("fuck", "" + result.getDevice().getAddress() + result.getDevice().getName());
                 onBluetoothDeviceFoundListener.onBlueToothDeviceFound(result.getDevice());
             }
         }
 
+        @Override
+        public void onBatchScanResults(List<ScanResult> results) {
+            super.onBatchScanResults(results);
+        }
     };
+
+
+    /**
+     * 这个将被注册到系统广播
+     * Create a BroadcastReceiver for BluetoothDevice.ACTION_FOUND
+     */
+    private final BroadcastReceiver blueToothDeviceFoundReceiver = new BroadcastReceiver() {
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            // When discovery finds a device
+            if (BluetoothDevice.ACTION_FOUND.equals(action)) {
+                // Get the BluetoothDevice object from the Intent
+                BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+                if (onBluetoothDeviceFoundListener != null && device != null) {
+                    Log.e("fuck", "" + device.getAddress() + device.getName());
+                    onBluetoothDeviceFoundListener.onBlueToothDeviceFound(device);
+                }
+            }
+        }
+    };
+
 
     // Data receiveThread
     private Thread dataReceiveThread = new Thread(new Runnable() {
@@ -109,8 +147,9 @@ public class BluetoothConnectionController implements ConnectionController {
      *
      * @return 成功／失败
      */
-    public boolean openBluetooth() {
-        BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+    public boolean openBluetooth(Context context) {
+        this.appContext = context.getApplicationContext();
+        this.bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if (bluetoothAdapter == null) {
             // Device does not support Bluetooth
             return false;
@@ -121,7 +160,7 @@ public class BluetoothConnectionController implements ConnectionController {
         if (!bluetoothAdapter.isEnabled()) {
             return false;
         }
-        this.bluetoothLeScanner = bluetoothAdapter.getBluetoothLeScanner();
+//        this.bluetoothLeScanner = bluetoothAdapter.getBluetoothLeScanner();
         this.connectionState = STATE_OPEN_AND_DISCONNECTED;
         return true;
     }
@@ -131,17 +170,36 @@ public class BluetoothConnectionController implements ConnectionController {
      *
      * @param onBluetoothDeviceFoundListener 发现设备回调
      */
-    public void scan(final OnBluetoothDeviceFoundListener onBluetoothDeviceFoundListener) {
+    public boolean scan(final OnBluetoothDeviceFoundListener onBluetoothDeviceFoundListener) {
+        if (this.connectionState == STATE_CLOSED) {
+            return false;
+        }
+        if (this.bluetoothAdapter.isDiscovering()) {
+            this.bluetoothAdapter.cancelDiscovery();
+        }
+        this.bluetoothAdapter.startDiscovery();
         this.onBluetoothDeviceFoundListener = onBluetoothDeviceFoundListener;
         // 扫描设备
-        bluetoothLeScanner.startScan(scanCallback);
+//        bluetoothLeScanner.startScan(scanCallback);
+        appContext.registerReceiver(blueToothDeviceFoundReceiver, new IntentFilter(BluetoothDevice.ACTION_FOUND));
+        return true;
     }
 
     /**
      * 停止扫描设备
      */
     public void stopScanning() {
-        bluetoothLeScanner.stopScan(scanCallback);
+        if (this.connectionState == STATE_CLOSED) {
+            return;
+        }
+        try {
+            appContext.unregisterReceiver(blueToothDeviceFoundReceiver);
+        }catch (IllegalArgumentException e){
+            e.printStackTrace();
+        }
+
+        bluetoothAdapter.cancelDiscovery();
+//        bluetoothLeScanner.stopScan(scanCallback);
     }
 
 
