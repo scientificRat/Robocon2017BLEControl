@@ -247,7 +247,7 @@ public class BluetoothConnectionController implements ConnectionController {
                     }
                 }
             }
-        });
+        }).start();
     }
 
     /**

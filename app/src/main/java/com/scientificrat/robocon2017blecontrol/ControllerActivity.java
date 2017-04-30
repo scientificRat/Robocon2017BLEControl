@@ -184,7 +184,7 @@ public class ControllerActivity extends AppCompatActivity {
             @Override
             public void onRockerChange(float xShittingRatio, float yShittingRatio) {
                 commandSender.setLeftX((short) (xShittingRatio * 1000));
-                commandSender.setLeftY((short) (yShittingRatio * 1000));
+                commandSender.setLeftY((short) (-yShittingRatio * 1000));
             }
         });
 
@@ -193,7 +193,7 @@ public class ControllerActivity extends AppCompatActivity {
             @Override
             public void onRockerChange(float xShittingRatio, float yShittingRatio) {
                 commandSender.setRightX((short) (xShittingRatio * 1000));
-                commandSender.setRightY((short) (yShittingRatio * 1000));
+                commandSender.setRightY((short) (-yShittingRatio * 1000));
             }
         });
 
@@ -551,13 +551,13 @@ public class ControllerActivity extends AppCompatActivity {
 
     @Override
     protected void onPause() {
-        this.commandSender.stop();
+        //this.commandSender.stop();
         super.onPause();
     }
 
     @Override
     protected void onResume() {
-        this.commandSender.start();
+        //this.commandSender.start();
         super.onResume();
     }
 }

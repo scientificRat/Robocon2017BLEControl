@@ -1,5 +1,7 @@
 package com.scientificrat.robocon2017blecontrol.sender;
 
+import android.util.Log;
+
 import com.scientificrat.robocon2017blecontrol.connection.BluetoothConnectionController;
 import com.scientificrat.robocon2017blecontrol.connection.ConnectionController;
 
@@ -47,30 +49,32 @@ public class CommandSender {
     private TimerTask timerTask = new TimerTask() {
         @Override
         public void run() {
-            ByteBuffer byteBuffer = ByteBuffer.allocate(13);
-            //小端序
-            byteBuffer.order(ByteOrder.LITTLE_ENDIAN);
-            byteBuffer.putShort((short) 0x0d0a).put(key);
-            // reset key
-            key = 0;
-            if (inEmergencyState) {
-                // 8bytes - 0
-                byteBuffer.putLong(0);
-            } else {
-                byteBuffer.putShort(leftX)
-                        .putShort(leftY)
-                        .putShort(rightX)
-                        .putShort(rightY);
-            }
+            while(true){
+                ByteBuffer byteBuffer = ByteBuffer.allocate(13);
+                //小端序
+                byteBuffer.order(ByteOrder.LITTLE_ENDIAN);
+                byteBuffer.putShort((short) 0x0d0a).put(key);
+                // reset key
+                key = 0;
+                if (inEmergencyState) {
+                    // 8bytes - 0
+                    byteBuffer.putLong(0);
+                } else {
+                    byteBuffer.putShort(leftX)
+                            .putShort(leftY)
+                            .putShort(rightX)
+                            .putShort(rightY);
+//                    Log.d("fu! ", "run: " + rightX+" "+rightY);
+                }
 
-            byteBuffer.putShort((short) 0x0a0d);
-            try {
-                connectionController.sendRawData(byteBuffer.array());
-            } catch (IOException e) {
-                e.printStackTrace();
-                stop();
+                byteBuffer.putShort((short) 0x0a0d);
+                try {
+                    connectionController.sendRawData(byteBuffer.array());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    stop();
+                }
             }
-
         }
     };
 
