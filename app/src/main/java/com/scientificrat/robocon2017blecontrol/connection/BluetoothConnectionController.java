@@ -203,6 +203,7 @@ public class BluetoothConnectionController implements ConnectionController {
     }
 
     // FIXME: 2017/4/26 需要自定义 Exception 类型
+
     /**
      * 连接设备 (阻塞方法)
      *
