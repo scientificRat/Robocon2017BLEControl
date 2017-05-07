@@ -212,13 +212,15 @@ public class BluetoothConnectionController implements ConnectionController {
      */
     public void connect(BluetoothDevice bluetoothDevice) throws IOException {
         this.bluetoothDevice = bluetoothDevice;
-        if (this.bluetoothDevice.getType() != BluetoothDevice.DEVICE_TYPE_CLASSIC || this.bluetoothDevice.getType() != BluetoothDevice.DEVICE_TYPE_DUAL) {
+        if (this.bluetoothDevice.getType() == BluetoothDevice.DEVICE_TYPE_LE) {
             throw new IOException("暂不支持蓝牙4.0 BLE 设备");
+        } else if(this.bluetoothDevice.getType() == BluetoothDevice.DEVICE_TYPE_UNKNOWN){
+            throw new IOException("不能识别的蓝牙设备");
         }
         this.bluetoothSocket = this.bluetoothDevice
                 .createRfcommSocketToServiceRecord(UUID.fromString(DEFAULT_DEVICE_UUID));
         bluetoothAdapter.cancelDiscovery();
-        Log.d("BLE connect:", "start to connect");
+        Log.d("BLUETOOTH connect:", "start to connect");
         // block until connect
         bluetoothSocket.connect();
         this.outputStream = bluetoothSocket.getOutputStream();
@@ -226,7 +228,7 @@ public class BluetoothConnectionController implements ConnectionController {
         // Start to receive data
         this.dataReceiveThread.start();
         this.connectionState = STATE_CONNECTED;
-        Log.d("BLE connect:", "connected");
+        Log.d("BLUETOOTH connect:", "connected");
     }
 
 
@@ -248,7 +250,7 @@ public class BluetoothConnectionController implements ConnectionController {
                 } catch (IOException e) {
                     e.printStackTrace();
                     if (onConnectListener != null) {
-                        onConnectListener.onConnectFail();
+                        onConnectListener.onConnectFail(e);
                     }
                 }
             }

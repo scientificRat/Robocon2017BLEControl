@@ -374,12 +374,12 @@ public class ControllerActivity extends AppCompatActivity {
                     }
 
                     @Override
-                    public void onConnectFail() {
+                    public void onConnectFail(final IOException e) {
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
                                 // 连接失败
-                                Toast.makeText(ControllerActivity.this, "连接失败", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(ControllerActivity.this, "连接失败:" + e.getMessage(), Toast.LENGTH_SHORT).show();
                                 connectionStateTextView.setText("未连接");
                                 deviceListView.setEnabled(true);
                                 connectButton.setText("连接");
