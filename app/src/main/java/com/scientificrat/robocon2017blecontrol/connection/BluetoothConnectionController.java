@@ -18,7 +18,6 @@ import java.io.OutputStream;
 import java.util.List;
 import java.util.UUID;
 
-import static android.bluetooth.BluetoothAdapter.ACTION_DISCOVERY_FINISHED;
 
 /**
  * Created by huangzhengyue on 2016/10/27.
@@ -63,12 +62,12 @@ public class BluetoothConnectionController implements ConnectionController {
 
     private OnBluetoothDeviceFoundListener onBluetoothDeviceFoundListener = null;
 
-
+    // no use
     private ScanCallback scanCallback = new ScanCallback() {
         @Override
         public void onScanResult(int callbackType, ScanResult result) {
             if (onBluetoothDeviceFoundListener != null && result.getDevice() != null) {
-//                Log.e("fuck", "" + result.getDevice().getAddress() + result.getDevice().getName());
+//                Log.e("fuck", "" + result.getDevice().getAddress() + " "+ result.getDevice().getName());
                 onBluetoothDeviceFoundListener.onBlueToothDeviceFound(result.getDevice());
             }
         }
@@ -92,7 +91,8 @@ public class BluetoothConnectionController implements ConnectionController {
                 // Get the BluetoothDevice object from the Intent
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                 if (onBluetoothDeviceFoundListener != null && device != null) {
-                    Log.e("fuck", "" + device.getAddress() + device.getName());
+//                    device.fetchUuidsWithSdp();
+//                    Log.e("fuck", "" + device.getAddress() + " " + device.getName() + " " + device.getType() + " " + Arrays.toString(device.getUuids()));
                     onBluetoothDeviceFoundListener.onBlueToothDeviceFound(device);
                 }
             }
@@ -194,7 +194,7 @@ public class BluetoothConnectionController implements ConnectionController {
         }
         try {
             appContext.unregisterReceiver(blueToothDeviceFoundReceiver);
-        }catch (IllegalArgumentException e){
+        } catch (IllegalArgumentException e) {
             e.printStackTrace();
         }
 
@@ -202,7 +202,7 @@ public class BluetoothConnectionController implements ConnectionController {
 //        bluetoothLeScanner.stopScan(scanCallback);
     }
 
-
+    // FIXME: 2017/4/26 需要自定义 Exception 类型
     /**
      * 连接设备 (阻塞方法)
      *
@@ -211,8 +211,12 @@ public class BluetoothConnectionController implements ConnectionController {
      */
     public void connect(BluetoothDevice bluetoothDevice) throws IOException {
         this.bluetoothDevice = bluetoothDevice;
+        if (this.bluetoothDevice.getType() != BluetoothDevice.DEVICE_TYPE_CLASSIC || this.bluetoothDevice.getType() != BluetoothDevice.DEVICE_TYPE_DUAL) {
+            throw new IOException("暂不支持蓝牙4.0 BLE 设备");
+        }
         this.bluetoothSocket = this.bluetoothDevice
                 .createRfcommSocketToServiceRecord(UUID.fromString(DEFAULT_DEVICE_UUID));
+        bluetoothAdapter.cancelDiscovery();
         Log.d("BLE connect:", "start to connect");
         // block until connect
         bluetoothSocket.connect();

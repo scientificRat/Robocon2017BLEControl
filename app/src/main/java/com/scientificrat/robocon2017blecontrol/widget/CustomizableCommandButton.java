@@ -102,7 +102,6 @@ public class CustomizableCommandButton extends AppCompatButton implements Serial
         customizableInfo = new CustomizableInfo();
         this.setText(customizableInfo.buttonText);
         initDefaultListeners();
-        attrs.getAttributeValue("app", "");
     }
 
     public CustomizableCommandButton(Context context, AttributeSet attrs, int defStyleAttr) {
@@ -212,6 +211,15 @@ public class CustomizableCommandButton extends AppCompatButton implements Serial
         RadioButton radioButtonOfASC = (RadioButton) mInputDialog.findViewById(R.id.button_ascii);
         RadioButton radioButtonOfHex = (RadioButton) mInputDialog.findViewById(R.id.button_hex);
         final EditText editTextOfButtonSendCommand = (EditText) mInputDialog.findViewById(R.id.editText_send_command);
+
+        // 根据自定义信息设置按键的dataFormat
+        if (customizableInfo.dataFormat == ASCII_FORMAT) {
+            radioButtonOfASC.setChecked(true);
+            radioButtonOfHex.setChecked(false);
+        } else if (customizableInfo.dataFormat == HEX_FORMAT) {
+            radioButtonOfASC.setChecked(false);
+            radioButtonOfHex.setChecked(true);
+        }
 
         radioButtonOfASC.setOnClickListener(new OnClickListener() {
             @Override

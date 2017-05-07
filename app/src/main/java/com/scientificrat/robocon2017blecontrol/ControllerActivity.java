@@ -239,7 +239,7 @@ public class ControllerActivity extends AppCompatActivity {
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.MATCH_PARENT);
         params.weight = 1.0f;
-        params.setMarginEnd(MeasurementUtility.convertDPtoPX(getResources(), 8));
+        params.setMarginEnd(MeasurementUtility.convertDPtoPX(getResources(), 6));
         customizeButtonContainer.addView(button, params);
     }
 
@@ -269,9 +269,9 @@ public class ControllerActivity extends AppCompatActivity {
     }
 
     private void constructCustomizedButtonInDefault() {
-        // 默认构建7个按钮
+        // 默认构建9个按钮
         CustomizableCommandButton.CustomizableInfo info;
-        for (int i = 0; i < 7; i++) {
+        for (int i = 0; i < 9; i++) {
             info = new CustomizableCommandButton.CustomizableInfo();
             info.setButtonText("位置" + i);
             addCustomizeCommandButton(info);
@@ -513,10 +513,9 @@ public class ControllerActivity extends AppCompatActivity {
     }
 
     /**
-     * 退出时保存状态
+     * 保存设置
      */
-    @Override
-    protected void onDestroy() {
+    private void saveSettings() {
         // Save customize button state to file
         // Gather information
         ArrayList<CustomizableCommandButton.CustomizableInfo> customizableInfoArrayList = new ArrayList<>();
@@ -537,6 +536,13 @@ public class ControllerActivity extends AppCompatActivity {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    /**
+     * 退出时保存状态
+     */
+    @Override
+    protected void onDestroy() {
         super.onDestroy();
     }
 
@@ -551,6 +557,7 @@ public class ControllerActivity extends AppCompatActivity {
 
     @Override
     protected void onPause() {
+        saveSettings();
         //this.commandSender.stop();
         super.onPause();
     }
