@@ -331,7 +331,7 @@
                             android:layout_weight="1" />
 
                         <com.scientificrat.robocon2017blecontrol.widget.MovementCommandButton
-                            command ="0,0,-100,0"
+                            command="0,0,-100,0"
                             android:layout_width="match_parent"
                             android:layout_height="0dp"
                             android:layout_weight="0.8"
@@ -342,6 +342,7 @@
                             android:foregroundTint="@color/colorFont" />
 
                         <com.scientificrat.robocon2017blecontrol.widget.ClickTriggerCommandButton
+                            command="6A"
                             android:layout_width="match_parent"
                             android:layout_height="0dp"
                             android:layout_weight="1"
@@ -378,7 +379,7 @@
                             android:layout_weight="0.8" />
 
                         <com.scientificrat.robocon2017blecontrol.widget.MovementCommandButton
-                            command ="0,0,0,-100"
+                            command="0,0,0,-100"
                             android:layout_width="match_parent"
                             android:layout_height="0dp"
                             android:layout_weight="1"
@@ -403,7 +404,7 @@
                             android:layout_weight="1" />
 
                         <com.scientificrat.robocon2017blecontrol.widget.MovementCommandButton
-                            command ="0,0,100,0"
+                            command="0,0,100,0"
                             android:layout_width="match_parent"
                             android:layout_height="0dp"
                             android:layout_weight="0.8"
@@ -431,88 +432,12 @@
 
         </android.support.constraint.ConstraintLayout>
 
-
-        <LinearLayout
-            android:id="@+id/left_drawer_layout"
-            android:layout_width="200dp"
-            android:layout_height="match_parent"
-            android:layout_gravity="left"
-            android:background="@color/colorWhite"
-            android:orientation="vertical"
-            android:padding="8dp">
-
-            <ScrollView
-                android:id="@+id/data_receive_scrollview"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1">
-
-                <TextView
-                    android:id="@+id/data_receive_textview"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:scrollbars="vertical"
-                    android:text="" />
-            </ScrollView>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:orientation="horizontal">
-
-                <ToggleButton
-                    android:id="@+id/receive_panel_ascii_toggle_button"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:layout_weight="1"
-                    android:backgroundTint="@color/colorLightBlue"
-                    android:textOff="HEX"
-                    android:textOn="ASCII" />
-
-                <Button
-                    android:id="@+id/clear_receive_btn"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:backgroundTint="@color/colorLightBlue"
-                    android:text="清空" />
-
-            </LinearLayout>
-
-
-        </LinearLayout>
-
-
-        <LinearLayout
-            android:id="@+id/right_drawer"
-            android:layout_width="300dp"
-            android:layout_height="match_parent"
-            android:layout_gravity="right"
-            android:background="@color/colorSecond"
-            android:orientation="vertical">
-
-            <ListView
-                android:id="@+id/device_listview"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                android:background="@color/colorSecond" />
-
-            <Button
-                android:id="@+id/connect_btn"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:layout_gravity="center"
-                android:layout_margin="10dp"
-                android:background="@drawable/blue_dashed_circle_button"
-                android:text="连接" />
-
-        </LinearLayout>
-
+        <!--左边栏-->
+        <include layout="@layout/left_panel" />
+        <!--右边栏-->
+        <include layout="@layout/right_panel" />
     </android.support.v4.widget.DrawerLayout>
-
+    <!--底部隐藏菜单-->
     <include layout="@layout/hide_panel" />
 
 </android.support.design.widget.CoordinatorLayout>

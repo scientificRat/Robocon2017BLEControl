@@ -358,20 +358,30 @@ public class ControllerActivity extends AppCompatActivity {
                 drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_OPEN, Gravity.RIGHT);
                 // Do connecting in background
                 bluetoothConnectionController.connectInBackground(selectedDevice, new OnConnectListener() {
+
                     @Override
                     public void onConnectSuccess() {
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
                                 // 连接成功
-                                connectionStateTextView.setText("已连接");
-                                deviceListView.setEnabled(false);
-                                connectButton.setText("断开");
-                                connectButton.setEnabled(true);
-                                drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, Gravity.RIGHT);
+                                // 启动定时命发送器
                                 if (!commandSender.start()) {
-                                    Toast.makeText(ControllerActivity.this, "FUCK I don't know what happened", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(ControllerActivity.this, "连接失败: 内部错误", Toast.LENGTH_SHORT).show();
+                                    bluetoothConnectionController.cancel();
+                                    connectButton.setText("连接");
+                                    connectButton.setEnabled(true);
+                                    // 解除右边滑出菜单锁定
+                                    drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, Gravity.RIGHT);
+                                } else {
+                                    connectionStateTextView.setText("已连接");
+                                    deviceListView.setEnabled(false);
+                                    connectButton.setText("断开");
+                                    connectButton.setEnabled(true);
+                                    // 收起右边滑出菜单
+                                    drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, Gravity.RIGHT);
                                 }
+
                             }
                         });
                     }
@@ -455,6 +465,7 @@ public class ControllerActivity extends AppCompatActivity {
                         } else {
                             dataReceiveTextView.append(HexHelper.byte2hexString(data, size));
                         }
+                        // 自动滚动屏幕到底部
                         new Handler().post(new Runnable() {
                             @Override
                             public void run() {
