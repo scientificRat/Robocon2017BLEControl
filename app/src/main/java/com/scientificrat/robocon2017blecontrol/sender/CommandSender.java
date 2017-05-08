@@ -43,7 +43,7 @@ public class CommandSender {
 
     private ConnectionController connectionController = BluetoothConnectionController.getInstance();
 
-    private Timer timer = new Timer(true);
+    private Timer timer;
 
     private TimerTask timerTask = new TimerTask() {
         @Override
@@ -95,8 +95,10 @@ public class CommandSender {
         if (this.state == STATE_START) {
             return true;
         }
+        // 创建新的timer，注意timer一旦cancel就不能再schedule新的任务
+        this.timer = new Timer(true);
         this.delayInMillis = delayInMillis;
-        timer.schedule(this.timerTask, 0, this.delayInMillis);
+        this.timer.schedule(this.timerTask, 0, this.delayInMillis);
         this.state = STATE_START;
         return true;
     }

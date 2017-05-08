@@ -476,6 +476,8 @@ public class ControllerActivity extends AppCompatActivity {
                         connectButton.setText("连接");
                         connectButton.setEnabled(true);
                         drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+                        // 连接中断停止发送
+                        commandSender.stop();
                     }
                 });
             }
@@ -538,9 +540,6 @@ public class ControllerActivity extends AppCompatActivity {
         }
     }
 
-    /**
-     * 退出时保存状态
-     */
     @Override
     protected void onDestroy() {
         super.onDestroy();
