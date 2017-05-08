@@ -9,6 +9,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.WindowManager;
@@ -51,6 +52,8 @@ import butterknife.OnCheckedChanged;
 import butterknife.OnClick;
 
 public class ControllerActivity extends AppCompatActivity {
+
+    private static String TAG = "ControllerActivity";
 
     private static String CUSTOMIZE_BUTTON_INFO_FILE_NAME = "CustomizeButtons.info";
 
@@ -105,7 +108,7 @@ public class ControllerActivity extends AppCompatActivity {
      */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
+        Log.d(TAG, "onCreate: create");
         // 从layout.xml 构建界面
         super.onCreate(savedInstanceState);
         // 不休眠
@@ -530,11 +533,16 @@ public class ControllerActivity extends AppCompatActivity {
         // Save
         File cacheDir = getCacheDir();
         if (!cacheDir.exists()) {
-            cacheDir.mkdirs();
+            if (!cacheDir.mkdirs()) {
+                // 创建文件夹失败
+                Log.d(TAG, "saveSettings: Create dir failed! ");
+                return;
+            }
         }
         File outputFile = new File(cacheDir, CUSTOMIZE_BUTTON_INFO_FILE_NAME);
         try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(new FileOutputStream(outputFile))) {
             objectOutputStream.writeObject(customizableInfoArrayList);
+            objectOutputStream.flush();
         } catch (IOException e) {
             e.printStackTrace();
         }
