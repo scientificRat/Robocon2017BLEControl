@@ -43,9 +43,11 @@ public class CommandSender {
 
     private ConnectionController connectionController = BluetoothConnectionController.getInstance();
 
-    private Timer timer;
+    private Timer timer = new Timer(true);
 
-    private TimerTask timerTask = new TimerTask() {
+    private TimerTask timerTask = null;
+
+    private Runnable sendDataRunnable = new Runnable() {
         @Override
         public void run() {
             ByteBuffer byteBuffer = ByteBuffer.allocate(13);
@@ -96,7 +98,12 @@ public class CommandSender {
             return true;
         }
         // 创建新的timer，注意timer一旦cancel就不能再schedule新的任务
-        this.timer = new Timer(true);
+        this.timerTask = new TimerTask() {
+            @Override
+            public void run() {
+                sendDataRunnable.run();
+            }
+        };
         this.delayInMillis = delayInMillis;
         this.timer.schedule(this.timerTask, 0, this.delayInMillis);
         this.state = STATE_START;
@@ -116,7 +123,9 @@ public class CommandSender {
      * 停止发送
      */
     public void stop() {
-        timer.cancel();
+        this.timerTask.cancel();
+        // Remove all canceled task of this timer
+        this.timer.purge();
         this.state = STATE_STOP;
     }
 

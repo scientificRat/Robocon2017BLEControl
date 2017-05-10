@@ -149,7 +149,6 @@ public class ControllerActivity extends AppCompatActivity {
                 drawerView.setClickable(true);
                 if (drawerView.getId() == R.id.right_drawer) {
                     drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, Gravity.RIGHT);
-                    startDiscovery();
                 }
             }
 
@@ -208,23 +207,12 @@ public class ControllerActivity extends AppCompatActivity {
     private void initUI() {
         // 获取所有ui控件的引用
         ButterKnife.bind(this);
+        // 设置显示连接状态
+        this.connectionStateTextView.setText(bluetoothConnectionController.isConnected() ? "已连接" : "未连接");
         // 底部上滑菜单
         this.bottomHidePanel = BottomSheetBehavior.from(bottomHidePanelView);
         // 构建所有自定义发送按钮
         this.constructCustomizedButton();
-    }
-
-
-    private void sendBytes(byte[] buffer) {
-        try {
-            if (!bluetoothConnectionController.isConnected()) {
-                Toast.makeText(ControllerActivity.this, "蓝牙未连接", Toast.LENGTH_SHORT).show();
-            } else {
-                bluetoothConnectionController.sendRawData(buffer);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
     /**
@@ -323,6 +311,14 @@ public class ControllerActivity extends AppCompatActivity {
                     Toast.LENGTH_SHORT).show();
             initBluetooth();
             return;
+        }
+        if (bluetoothConnectionController.isConnected()) {
+            deviceListAdapter.clear();
+            deviceListAdapter.addDevice(bluetoothConnectionController.getConnectedBluetoothDevice());
+            deviceListAdapter.setSelectedPosition(0);
+            connectButton.setText("断开");
+        } else {
+            startDiscovery();
         }
         drawerLayout.openDrawer(Gravity.RIGHT);
     }
@@ -441,6 +437,9 @@ public class ControllerActivity extends AppCompatActivity {
      * 初始化蓝牙设备
      */
     private void initBluetooth() {
+        if (bluetoothConnectionController.isConnected() || bluetoothConnectionController.isOpen()) {
+            return;
+        }
         if (!bluetoothConnectionController.openBluetooth(this)) {
             // Device does not support Bluetooth then alert
             runOnUiThread(new Runnable() {

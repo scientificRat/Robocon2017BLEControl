@@ -99,9 +99,7 @@ public class BluetoothConnectionController implements ConnectionController {
         }
     };
 
-
-    // Data receiveThread
-    private Thread dataReceiveThread = new Thread(new Runnable() {
+    private Runnable dataReceiveRunnable = new Runnable() {
         @Override
         public void run() {
             try {
@@ -129,7 +127,9 @@ public class BluetoothConnectionController implements ConnectionController {
                 }
             }
         }
-    });
+    };
+    // Data receiveThread
+    private Thread dataReceiveThread = null;
 
 
     /**
@@ -214,7 +214,7 @@ public class BluetoothConnectionController implements ConnectionController {
         this.bluetoothDevice = bluetoothDevice;
         if (this.bluetoothDevice.getType() == BluetoothDevice.DEVICE_TYPE_LE) {
             throw new IOException("暂不支持蓝牙4.0 BLE 设备");
-        } else if(this.bluetoothDevice.getType() == BluetoothDevice.DEVICE_TYPE_UNKNOWN){
+        } else if (this.bluetoothDevice.getType() == BluetoothDevice.DEVICE_TYPE_UNKNOWN) {
             throw new IOException("不能识别的蓝牙设备");
         }
         this.bluetoothSocket = this.bluetoothDevice
@@ -226,6 +226,7 @@ public class BluetoothConnectionController implements ConnectionController {
         this.outputStream = bluetoothSocket.getOutputStream();
         this.inputStream = bluetoothSocket.getInputStream();
         // Start to receive data
+        this.dataReceiveThread = new Thread(dataReceiveRunnable);
         this.dataReceiveThread.start();
         this.connectionState = STATE_CONNECTED;
         Log.d("BLUETOOTH connect:", "connected");
@@ -283,6 +284,7 @@ public class BluetoothConnectionController implements ConnectionController {
             e.printStackTrace();
         } finally {
             this.connectionState = STATE_OPEN_AND_DISCONNECTED;
+            dataReceiveThread = null;
         }
     }
 
