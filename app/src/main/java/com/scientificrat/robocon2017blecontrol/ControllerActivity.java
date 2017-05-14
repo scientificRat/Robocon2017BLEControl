@@ -60,6 +60,8 @@ public class ControllerActivity extends AppCompatActivity {
     // 蓝牙连接控制器
     private BluetoothConnectionController bluetoothConnectionController
             = BluetoothConnectionController.getInstance();
+
+    private boolean dataReceivingMode = false;
     // 设备列表控制器(controller)
     DeviceListAdapter deviceListAdapter;
     // 命令发送器
@@ -100,6 +102,8 @@ public class ControllerActivity extends AppCompatActivity {
     Rocker rightRocker;
 
     BottomSheetBehavior bottomHidePanel;
+
+    private StringBuilder receiveBuffer = new StringBuilder();
 
     /**
      * OnCreate 方法
@@ -149,6 +153,8 @@ public class ControllerActivity extends AppCompatActivity {
                 drawerView.setClickable(true);
                 if (drawerView.getId() == R.id.right_drawer) {
                     drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, Gravity.RIGHT);
+                } else {
+                    dataReceivingMode = true;
                 }
             }
 
@@ -157,6 +163,8 @@ public class ControllerActivity extends AppCompatActivity {
                 if (drawerView.getId() == R.id.right_drawer) {
                     stopDiscovery();
                     drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, Gravity.RIGHT);
+                } else {
+                    dataReceivingMode = false;
                 }
             }
 
@@ -454,25 +462,41 @@ public class ControllerActivity extends AppCompatActivity {
         bluetoothConnectionController.setOnDataInListener(new OnDataInListener() {
             @Override
             public void onDataIn(final byte[] data, final int size) {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (receivePanelAsciiToggleButton.isChecked()) {
-                            Charset charset = Charset.forName("GBK");
-                            charset.decode(ByteBuffer.wrap(data, 0, size));
-                            dataReceiveTextView.append(charset.decode(ByteBuffer.wrap(data, 0, size)));
-                        } else {
-                            dataReceiveTextView.append(HexHelper.byte2hexString(data, size));
-                        }
-                        // 自动滚动屏幕到底部
-                        new Handler().post(new Runnable() {
-                            @Override
-                            public void run() {
-                                dataReceiveScrollView.fullScroll(ScrollView.FOCUS_DOWN);
+
+                if (dataReceivingMode) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            // 写入缓存
+                            if (receiveBuffer.length() != 0) {
+                                dataReceiveTextView.append(receiveBuffer.toString());
+                                // reset
+                                receiveBuffer.setLength(0);
                             }
-                        });
+                            if (receivePanelAsciiToggleButton.isChecked()) {
+                                Charset charset = Charset.forName("GBK");
+                                dataReceiveTextView.append(charset.decode(ByteBuffer.wrap(data, 0, size)));
+                            } else {
+                                dataReceiveTextView.append(HexHelper.byte2hexString(data, size));
+                            }
+                            // 自动滚动屏幕到底部
+                            new Handler().post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    dataReceiveScrollView.fullScroll(ScrollView.FOCUS_DOWN);
+                                }
+                            });
+                        }
+                    });
+                } else {
+                    // 暂存信息
+                    if (receivePanelAsciiToggleButton.isChecked()) {
+                        Charset charset = Charset.forName("GBK");
+                        receiveBuffer.append(charset.decode(ByteBuffer.wrap(data, 0, size)));
+                    } else {
+                        receiveBuffer.append(HexHelper.byte2hexString(data, size));
                     }
-                });
+                }
             }
         });
 
