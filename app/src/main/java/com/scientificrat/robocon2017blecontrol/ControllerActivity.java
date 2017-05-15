@@ -469,9 +469,14 @@ public class ControllerActivity extends AppCompatActivity {
                         public void run() {
                             // 写入缓存
                             if (receiveBuffer.length() != 0) {
-                                dataReceiveTextView.append(receiveBuffer.toString());
+                                int start = 0;
+                                // 丢弃过早的值，限制写入大小，避免卡顿
+                                if (receiveBuffer.length() > 500) {
+                                    start = receiveBuffer.length() - 500;
+                                }
+                                dataReceiveTextView.append(receiveBuffer.subSequence(start, receiveBuffer.length()));
                                 // reset
-                                receiveBuffer.setLength(0);
+                                receiveBuffer = new StringBuilder();
                             }
                             if (receivePanelAsciiToggleButton.isChecked()) {
                                 Charset charset = Charset.forName("GBK");
