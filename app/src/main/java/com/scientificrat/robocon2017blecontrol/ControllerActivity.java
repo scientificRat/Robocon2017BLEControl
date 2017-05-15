@@ -245,7 +245,7 @@ public class ControllerActivity extends AppCompatActivity {
     /**
      * 构建所有自定义发送按钮
      */
-    private void constructCustomizedButton() {
+    private synchronized void constructCustomizedButton() {
         File inputFile = new File(getCacheDir(), CUSTOMIZE_BUTTON_INFO_FILE_NAME);
         if (!inputFile.exists()) {
             constructCustomizedButtonInDefault();
@@ -559,7 +559,7 @@ public class ControllerActivity extends AppCompatActivity {
     /**
      * 保存设置
      */
-    private void saveSettings() {
+    private synchronized void saveSettings() {
         // Save customize button state to file
         // Gather information
         ArrayList<CustomizableCommandButton.CustomizableInfo> customizableInfoArrayList = new ArrayList<>();
