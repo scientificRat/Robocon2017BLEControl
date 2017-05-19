@@ -270,11 +270,25 @@ public class ControllerActivity extends AppCompatActivity {
     private void constructCustomizedButtonInDefault() {
         // 默认构建9个按钮
         CustomizableCommandButton.CustomizableInfo info;
-        for (int i = 0; i < 9; i++) {
+        // First
+        info = new CustomizableCommandButton.CustomizableInfo();
+        info.setButtonText("装弹区");
+        info.setDataFormat(CustomizableCommandButton.HEX_FORMAT);
+        info.setSendBuffer(HexHelper.hexString2byte("0A0D 09 0000 0000 0000 0000 0D0A"));
+        addCustomizeCommandButton(info);
+        for (int i = 0; i < 7; i++) {
             info = new CustomizableCommandButton.CustomizableInfo();
-            info.setButtonText("位置" + i);
+            info.setButtonText("位置" + i + 1);
+            info.setDataFormat(CustomizableCommandButton.HEX_FORMAT);
+            info.setSendBuffer(HexHelper.hexString2byte("0A0D0" + i + 1 + "0000 0000 0000 0000 0D0A"));
             addCustomizeCommandButton(info);
         }
+        // Last
+        info = new CustomizableCommandButton.CustomizableInfo();
+        info.setButtonText("启动区");
+        info.setDataFormat(CustomizableCommandButton.HEX_FORMAT);
+        info.setSendBuffer(HexHelper.hexString2byte("0A0D 08 0000 0000 0000 0000 0D0A"));
+        addCustomizeCommandButton(info);
     }
 
 
