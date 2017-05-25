@@ -274,20 +274,21 @@ public class ControllerActivity extends AppCompatActivity {
         info = new CustomizableCommandButton.CustomizableInfo();
         info.setButtonText("装弹区");
         info.setDataFormat(CustomizableCommandButton.HEX_FORMAT);
-        info.setSendBuffer(HexHelper.hexString2byte("0A0D 09 0000 0000 0000 0000 0D0A"));
+        info.setSendBuffer(HexHelper.hexString2byte("0A0D0900000000000000000D0A"));
         addCustomizeCommandButton(info);
         for (int i = 0; i < 7; i++) {
             info = new CustomizableCommandButton.CustomizableInfo();
-            info.setButtonText("位置" + i + 1);
+            int pos = i + 1;
+            info.setButtonText("位置" + pos);
             info.setDataFormat(CustomizableCommandButton.HEX_FORMAT);
-            info.setSendBuffer(HexHelper.hexString2byte("0A0D0" + i + 1 + "0000 0000 0000 0000 0D0A"));
+            info.setSendBuffer(HexHelper.hexString2byte("0A0D0" + pos + "00000000000000000D0A"));
             addCustomizeCommandButton(info);
         }
         // Last
         info = new CustomizableCommandButton.CustomizableInfo();
         info.setButtonText("启动区");
         info.setDataFormat(CustomizableCommandButton.HEX_FORMAT);
-        info.setSendBuffer(HexHelper.hexString2byte("0A0D 08 0000 0000 0000 0000 0D0A"));
+        info.setSendBuffer(HexHelper.hexString2byte("0A0D0800000000000000000D0A"));
         addCustomizeCommandButton(info);
     }
 
