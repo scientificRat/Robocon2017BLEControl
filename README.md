@@ -1,4 +1,4 @@
-# Robocon2017BLEControl
+# Robocon2017BTControl
 为robocon2017,  四川大学代表队 SCU_MVP 打造的控制app
 
 * 蓝牙通讯app（classical Bluetooth RFCOMM），兼容HC-05/HC-06， 不支持BLE(low energy）蓝牙设备
