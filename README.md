@@ -8,3 +8,8 @@
 * app中集成蓝牙连接接口
 * 方便二次开发
 
+## 截图展示
+
+![image](demo1.png)
+
+![image](demo2.png)
